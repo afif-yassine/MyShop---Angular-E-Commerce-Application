@@ -1,59 +1,170 @@
-# MyShop
+************\*\*\*************#### YASSINE AFIF ####************\*\*\*\*************
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.9.
+# MyShop - Angular E-Commerce Application
 
-## Development server
+This project is an Angular-based e-commerce application that demonstrates modern Angular development practices including NgRx state management, Angular Material UI components, and Storybook for component development.
 
-To start a local development server, run:
+## Project Goal
+
+This application implements a shop management system with the following features:
+
+- User authentication (login with JWT tokens)
+- Product listing with filtering and pagination
+- Product rating information display
+- State management using NgRx
+- Component development with Storybook
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. Install dependencies:
 
 ```bash
+npm install
+```
+
+### Running the Application
+
+1. Start the development server:
+
+```bash
+npm start
+# or
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+2. Open your browser and navigate to `http://localhost:4200/`
 
-## Code scaffolding
+The application will automatically reload when you modify source files.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Running Storybook
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+To view and develop components in isolation:
 
 ```bash
-ng generate --help
+npm run storybook
 ```
+
+Storybook will be available at `http://localhost:6006/`
+
+### MSW (Mock Service Worker)
+
+The project uses MSW to mock API endpoints during development. The mock service worker is automatically configured and will intercept API calls to:
+
+- `/api/auth/token/` - Login endpoint
+- `/api/auth/token/refresh/` - Token refresh endpoint
+- `/api/products/` - Products listing endpoint
+- `/api/products/:id/rating/` - Product rating endpoint
+
+No additional configuration is needed - MSW runs automatically in development mode.
+
+## Project Structure
+
+### State Management (NgRx)
+
+The application uses NgRx for state management. State slices are located in:
+
+- **Auth State**: `src/app/state/auth/`
+  - `auth.actions.ts` - Auth actions (login, loginSuccess, loginFailure)
+  - `auth.reducer.ts` - Auth reducer and state interface
+  - `auth.selectors.ts` - Auth selectors
+  - `auth.effects.ts` - Auth side effects (API calls)
+
+- **Products State**: `src/app/state/products/`
+  - `products.actions.ts` - Products actions (loadProducts, loadProductsSuccess, loadProductsFailure)
+  - `products.reducer.ts` - Products reducer and state interface
+  - `products.selectors.ts` - Products selectors
+  - `products.effects.ts` - Products side effects (API calls)
+
+State is registered in `src/app/app.config.ts` using `provideStore()` and effects are registered with `provideEffects()`.
+
+### Architecture
+
+The application follows a container/presentational component pattern:
+
+- **Container Components** (pages): Connect to NgRx store, handle business logic
+  - `src/app/pages/login-page/` - Login page
+  - `src/app/pages/products-page/` - Products listing page
+  - `src/app/pages/product-rating-page/` - Product rating page
+
+- **Presentational Components**: Pure UI components, no NgRx dependencies
+  - `src/app/components/product-card/` - Product card display
+  - `src/app/components/products-list/` - Products list display
+  - `src/app/components/login-form/` - Login form component
+
+### API Layer
+
+The `ShopApiService` (`src/app/services/shop-api.service.ts`) handles all HTTP requests:
+
+- `login(username, password)` - Authenticate user
+- `refresh(refreshToken)` - Refresh access token
+- `getProducts(params)` - Fetch products with filters
+- `getRating(productId)` - Get product rating information
+
+### Routing
+
+Routes are defined in `src/app/app.routes.ts`:
+
+- `/login` - Login page
+- `/shop/products` - Products listing page
+- `/shop/rating` - Product rating page
+- `/app` - App placeholder with navigation links
+
+## Quick Usage Flow
+
+1. **Login**
+   - Navigate to `/login`
+   - Enter credentials (demo/demo for testing)
+   - Submit the form
+   - Access token is stored in NgRx auth state
+
+2. **View Products**
+   - Navigate to `/shop/products`
+   - Use filters (min rating, ordering)
+   - Products are loaded via NgRx effects
+   - Pagination is available
+
+3. **Check Product Rating**
+   - Navigate to `/shop/rating`
+   - Enter a product ID
+   - View rating information (average rating, count)
+
+4. **Storybook**
+   - Run `npm run storybook`
+   - Browse component stories
+   - Test components in isolation
 
 ## Building
 
-To build the project run:
+To build the project for production:
 
 ```bash
-ng build
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+The build artifacts will be stored in the `dist/` directory.
 
-## Running unit tests
+## Testing
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+To run unit tests:
 
 ```bash
-ng test
+npm test
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
 ## Additional Resources
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [Angular Documentation](https://angular.dev)
+- [NgRx Documentation](https://ngrx.io)
+- [Angular Material](https://material.angular.io)
+- [Storybook Documentation](https://storybook.js.org)
+
+## Documentation
+
+For detailed architecture documentation, see [docs/architecture.md](./docs/architecture.md).

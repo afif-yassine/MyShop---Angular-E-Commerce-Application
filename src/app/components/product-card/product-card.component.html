@@ -1,0 +1,18 @@
+<mat-card class="product-card">
+  <mat-card-header>
+    <mat-card-title>{{ name }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="product-info">
+      <div class="price">Price: {{ price | number: '1.2-2' }} €</div>
+      <div class="date">Created: {{ formatDate(created_at) }}</div>
+      <mat-chip-set>
+        <mat-chip>
+          <mat-icon>star</mat-icon>
+          {{ avgRating | number: '1.1-1' }}
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+  </mat-card-content>
+</mat-card>
+

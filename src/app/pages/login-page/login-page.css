@@ -1,0 +1,27 @@
+.login-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 24px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.loading-container,
+.error-container,
+.success-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+

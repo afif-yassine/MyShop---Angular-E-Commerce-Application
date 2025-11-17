@@ -1,0 +1,14 @@
+<div class="products-list-container">
+  <div *ngIf="loading" class="loading">Loading products...</div>
+  <div *ngIf="error" class="error">Error: {{ error }}</div>
+  <div *ngIf="!loading && !error" class="products-grid">
+    <app-product-card
+      *ngFor="let product of products"
+      [name]="product.name"
+      [price]="product.price"
+      [created_at]="product.created_at"
+      [avgRating]="getAvgRating(product)">
+    </app-product-card>
+  </div>
+</div>
+
