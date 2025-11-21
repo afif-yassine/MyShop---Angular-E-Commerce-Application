@@ -1,17 +1,18 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   standalone: true,
   selector: 'app-product-card',
-  imports: [CommonModule, MatCardModule, MatChipsModule, MatIconModule],
+  imports: [CommonModule, RouterModule, MatCardModule, MatIconModule],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css'],
 })
 export class ProductCardComponent {
+  @Input() id = 0;
   @Input() name = '';
   @Input() price = 0;
   @Input() created_at = '';

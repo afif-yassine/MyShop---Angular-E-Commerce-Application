@@ -64,7 +64,7 @@ export class DevAuthComponent {
     const res = await fetch('/api/auth/token/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'demo', password: 'demo' }),
+      body: JSON.stringify({ username: 'demo@example.com', password: 'demo123456' }),
     });
     if (!res.ok) {
       this.err.set(`${res.status} ${res.statusText}`);

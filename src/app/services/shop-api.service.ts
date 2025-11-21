@@ -19,6 +19,35 @@ export interface ProductRatingResponse {
   count: number;
 }
 
+export interface CartValidationResponse {
+  valid: boolean;
+  total: number;
+  items: Array<{
+    product_id: number;
+    quantity: number;
+    price: number;
+  }>;
+}
+
+export interface OrderRequest {
+  items: Array<{
+    product_id: number;
+    quantity: number;
+  }>;
+  address: {
+    fullName: string;
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
+}
+
+export interface OrderResponse {
+  order_number: string;
+  total: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ShopApiService {
   constructor(private http: HttpClient) {}
@@ -56,5 +85,17 @@ export class ShopApiService {
 
   getRating(productId: number): Observable<ProductRatingResponse> {
     return this.http.get<ProductRatingResponse>(`/api/products/${productId}/rating/`);
+  }
+
+  getProduct(id: number): Observable<Product> {
+    return this.http.get<Product>(`/api/products/${id}`);
+  }
+
+  validateCart(items: Array<{ product_id: number; quantity: number }>): Observable<CartValidationResponse> {
+    return this.http.post<CartValidationResponse>('/api/cart/validate', { items });
+  }
+
+  createOrder(orderData: OrderRequest): Observable<OrderResponse> {
+    return this.http.post<OrderResponse>('/api/order', orderData);
   }
 }

@@ -12,6 +12,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { ProductsListComponent } from '../../components/products-list/products-list.component';
+import { ModernFiltersComponent, FilterValues } from '../../components/modern-filters/modern-filters.component';
 import * as ProductsActions from '../../state/products/products.actions';
 import {
   selectProductsList,
@@ -30,7 +32,6 @@ import { avgRating } from '../../../mocks/utils';
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
-    MatTableModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -39,6 +40,8 @@ import { avgRating } from '../../../mocks/utils';
     MatChipsModule,
     MatIconModule,
     MatPaginatorModule,
+    ProductsListComponent,
+    ModernFiltersComponent,
   ],
   templateUrl: './products-page.html',
   styleUrls: ['./products-page.css'],
@@ -49,7 +52,7 @@ export class ProductsPageComponent implements OnInit {
 
   filterForm: FormGroup = this.fb.group({
     page: [1],
-    pageSize: [10],
+    pageSize: [12],
     minRating: [0],
     ordering: ['-created_at'],
   });
@@ -59,8 +62,6 @@ export class ProductsPageComponent implements OnInit {
   loading$ = this.store.select(selectProductsLoading);
   error$ = this.store.select(selectProductsError);
   lastQueryParams$ = this.store.select(selectLastQueryParams);
-
-  displayedColumns: string[] = ['id', 'name', 'price', 'created_at', 'avgRating'];
 
   ngOnInit() {
     this.loadProducts();
@@ -85,5 +86,21 @@ export class ProductsPageComponent implements OnInit {
 
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString();
+  }
+
+  onFiltersChange(filters: FilterValues) {
+    this.filterForm.patchValue({
+      minRating: filters.minRating,
+      ordering: filters.sortBy,
+    });
+    this.loadProducts();
+  }
+
+  onClearFilters() {
+    this.filterForm.patchValue({
+      minRating: 0,
+      ordering: '-created_at',
+    });
+    this.loadProducts();
   }
 }

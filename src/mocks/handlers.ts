@@ -53,4 +53,64 @@ export const handlers = [
       { status: 200 },
     );
   }),
+
+  // Product details: GET /api/products/:id
+  http.get(`${API}/products/:id`, async ({ params }) => {
+    const id = Number(params['id']);
+    const p = products.find((x) => x.id === id);
+    if (!p) return HttpResponse.json({ detail: 'Not found.' }, { status: 404 });
+    return HttpResponse.json(p, { status: 200 });
+  }),
+
+  // Cart validation: POST /api/cart/validate
+  http.post(`${API}/cart/validate`, async ({ request }) => {
+    const body = (await request.json()) as { items: Array<{ product_id: number; quantity: number }> };
+    const validatedItems = body.items.map((item) => {
+      const product = products.find((p) => p.id === item.product_id);
+      if (!product) {
+        return null;
+      }
+      return {
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: product.price,
+      };
+    }).filter((item) => item !== null);
+
+    const total = validatedItems.reduce((sum, item) => sum + (item?.price || 0) * (item?.quantity || 0), 0);
+
+    return HttpResponse.json(
+      {
+        valid: validatedItems.length === body.items.length,
+        total,
+        items: validatedItems,
+      },
+      { status: 200 }
+    );
+  }),
+
+  // Create order: POST /api/order
+  http.post(`${API}/order`, async ({ request }) => {
+    const body = (await request.json()) as {
+      items: Array<{ product_id: number; quantity: number }>;
+      address: Record<string, string>;
+    };
+    
+    // Calculate total
+    const total = body.items.reduce((sum, item) => {
+      const product = products.find((p) => p.id === item.product_id);
+      return sum + (product?.price || 0) * item.quantity;
+    }, 0);
+
+    // Generate order number
+    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+    return HttpResponse.json(
+      {
+        order_number: orderNumber,
+        total,
+      },
+      { status: 200 }
+    );
+  }),
 ];

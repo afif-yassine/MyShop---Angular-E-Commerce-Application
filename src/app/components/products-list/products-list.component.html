@@ -4,6 +4,7 @@
   <div *ngIf="!loading && !error" class="products-grid">
     <app-product-card
       *ngFor="let product of products"
+      [id]="product.id"
       [name]="product.name"
       [price]="product.price"
       [created_at]="product.created_at"

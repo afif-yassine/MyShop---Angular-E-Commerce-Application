@@ -1,0 +1,103 @@
+<div class="filter-card">
+  <div class="filter-header">
+    <div class="filter-title-group">
+      <mat-icon class="filter-icon">tune</mat-icon>
+      <h3 class="filter-title">Filters</h3>
+      <mat-chip *ngIf="activeFiltersCount > 0" class="filter-badge">
+        {{ activeFiltersCount }}
+      </mat-chip>
+    </div>
+    <button
+      mat-icon-button
+      (click)="onClear()"
+      *ngIf="activeFiltersCount > 0"
+      class="clear-button"
+      aria-label="Clear all filters">
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="filter-divider"></div>
+
+  <form [formGroup]="filterForm" class="filter-form">
+    <!-- Search -->
+    <div class="filter-control">
+      <label class="filter-label">Search Products</label>
+      <div class="input-wrapper">
+        <mat-icon class="input-icon">search</mat-icon>
+        <input
+          type="text"
+          formControlName="search"
+          placeholder="Search by name..."
+          class="filter-input" />
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="filter-control">
+      <label class="filter-label">Category</label>
+      <div class="input-wrapper">
+        <mat-icon class="input-icon">category</mat-icon>
+        <select formControlName="category" class="filter-select">
+          <option *ngFor="let cat of categories" [value]="cat.value">
+            {{ cat.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Price Range -->
+    <div class="filter-control price-range-control">
+      <label class="filter-label">Price Range</label>
+      <div class="price-range-inputs">
+        <div class="input-wrapper">
+          <input
+            type="number"
+            formControlName="minPrice"
+            min="0"
+            placeholder="Min"
+            class="filter-input price-input" />
+        </div>
+        <span class="price-separator">-</span>
+        <div class="input-wrapper">
+          <input
+            type="number"
+            formControlName="maxPrice"
+            min="0"
+            placeholder="Max"
+            class="filter-input price-input" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Sort -->
+    <div class="filter-control">
+      <label class="filter-label">Sort By</label>
+      <div class="input-wrapper">
+        <mat-icon class="input-icon">sort</mat-icon>
+        <select formControlName="sortBy" class="filter-select">
+          <option *ngFor="let option of sortOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Rating -->
+    <div class="filter-control">
+      <label class="filter-label">Min Rating</label>
+      <div class="input-wrapper rating-wrapper">
+        <mat-icon class="input-icon rating-icon">star</mat-icon>
+        <input
+          type="number"
+          formControlName="minRating"
+          min="0"
+          max="5"
+          step="0.1"
+          placeholder="0"
+          class="filter-input rating-input" />
+      </div>
+    </div>
+  </form>
+</div>
+

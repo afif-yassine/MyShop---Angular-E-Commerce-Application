@@ -16,6 +16,10 @@ import { authReducer } from './state/auth/auth.reducer';
 import { AuthEffects } from './state/auth/auth.effects';
 import { productsReducer } from './state/products/products.reducer';
 import { ProductsEffects } from './state/products/products.effects';
+import { cartReducer } from './state/cart/cart.reducer';
+import { CartEffects } from './state/cart/cart.effects';
+import { ordersReducer } from './state/orders/orders.reducer';
+import { navigationReducer } from './state/navigation/navigation.reducer';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -28,8 +32,11 @@ export const appConfig: ApplicationConfig = {
     provideStore({
       auth: authReducer,
       products: productsReducer,
+      cart: cartReducer,
+      orders: ordersReducer,
+      navigation: navigationReducer,
     }),
-    provideEffects([AuthEffects, ProductsEffects]),
+    provideEffects([AuthEffects, ProductsEffects, CartEffects]),
 
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],

@@ -1,6 +1,6 @@
 ************\*\*\*************#### YASSINE AFIF ####************\*\*\*\*************
 
-# MyShop - Angular E-Commerce Application
+# remote
 
 This project is an Angular-based e-commerce application that demonstrates modern Angular development practices including NgRx state management, Angular Material UI components, and Storybook for component development.
 

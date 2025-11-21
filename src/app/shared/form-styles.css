@@ -1,0 +1,79 @@
+/* ============================================
+   SHARED FORM STYLES
+   Reusable styles for form inputs and fields
+   ============================================ */
+
+/* Input Container - Base Style */
+.input-container-base {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+  height: 48px;
+}
+
+.input-container-base:hover {
+  border-color: var(--color-primary-light);
+}
+
+.input-container-base:focus-within {
+  border-color: var(--color-primary-solid);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  outline: none;
+}
+
+/* Input Icon - Left Position */
+.input-icon-base {
+  position: absolute;
+  left: var(--spacing-md);
+  color: var(--color-text-secondary);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Input Field - Base Style */
+.input-field-base {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 48px;
+  font-size: var(--font-size-base);
+  font-family: var(--font-family);
+  color: var(--color-text-primary);
+  background: transparent;
+  height: 100%;
+}
+
+.input-field-base::placeholder {
+  color: var(--color-text-disabled);
+}
+
+/* Error State */
+.input-error-state {
+  border-color: var(--color-error) !important;
+}
+
+.input-error-state:focus-within {
+  border-color: var(--color-error) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.input-error-state .input-icon-base {
+  color: var(--color-error);
+}
+
+/* Error Text */
+.error-text-base {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-error);
+  margin-top: var(--spacing-xs);
+  line-height: 1.4;
+}
+

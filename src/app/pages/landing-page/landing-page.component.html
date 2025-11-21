@@ -1,0 +1,183 @@
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-background"></div>
+  <div class="container hero-content">
+    <div class="hero-text fade-in">
+      <h1 class="hero-title">Discover Premium Products</h1>
+      <p class="hero-subtitle">Shop the latest trends and find everything you need in one place</p>
+      
+      <!-- Login Form Toggle -->
+      <div *ngIf="!(isLoggedIn$ | async)" class="login-section">
+        <button 
+          *ngIf="!showLoginForm"
+          (click)="toggleLoginForm()" 
+          class="btn btn-primary btn-large">
+          <mat-icon>login</mat-icon>
+          <span>Login to Order</span>
+        </button>
+        
+        <div *ngIf="showLoginForm" class="login-form-card premium-card">
+          <h3>Sign In</h3>
+          <p class="login-subtitle">Login to place orders</p>
+          <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()" class="landing-login-form">
+            <div class="form-field-wrapper">
+              <label class="form-label">Email</label>
+              <div class="input-container">
+                <mat-icon class="input-icon-left">email</mat-icon>
+                <input
+                  type="email"
+                  formControlName="email"
+                  placeholder="demo@example.com"
+                  class="form-input" />
+              </div>
+            </div>
+            
+            <div class="form-field-wrapper">
+              <label class="form-label">Password</label>
+              <div class="input-container">
+                <mat-icon class="input-icon-left">lock</mat-icon>
+                <input
+                  type="password"
+                  formControlName="password"
+                  placeholder="Enter password"
+                  class="form-input" />
+              </div>
+            </div>
+            
+            <button
+              type="submit"
+              class="btn btn-primary btn-full"
+              [disabled]="loginForm.invalid || (loading$ | async)">
+              <mat-spinner *ngIf="loading$ | async" diameter="20" class="spinner-inline"></mat-spinner>
+              <span *ngIf="!(loading$ | async)">Login</span>
+            </button>
+            
+            <button
+              type="button"
+              (click)="toggleLoginForm()"
+              class="btn btn-ghost btn-full">
+              Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <div *ngIf="isLoggedIn$ | async" class="hero-cta">
+        <a routerLink="/shop/products" class="btn btn-primary btn-large">
+          <span>Shop Now</span>
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+        <a routerLink="/account" class="btn btn-outline btn-large">
+          <span>My Account</span>
+        </a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="floating-card card-1">
+        <mat-icon>shopping_bag</mat-icon>
+      </div>
+      <div class="floating-card card-2">
+        <mat-icon>favorite</mat-icon>
+      </div>
+      <div class="floating-card card-3">
+        <mat-icon>star</mat-icon>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Categories -->
+<section class="categories-section">
+  <div class="container">
+    <h2 class="section-title">Shop by Category</h2>
+    <div class="categories-grid">
+      <div *ngFor="let category of categories" class="category-card premium-card">
+        <div class="category-image" [class]="'bg-gradient-to-br ' + category.gradient">
+          <mat-icon>{{ category.icon }}</mat-icon>
+        </div>
+        <div class="category-info">
+          <h3>{{ category.name }}</h3>
+          <a routerLink="/shop/products" class="category-link">
+            Explore <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Best Sellers / New Arrivals -->
+<section class="products-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">New Arrivals</h2>
+      <a routerLink="/shop/products" class="view-all-link">
+        View All <mat-icon>arrow_forward</mat-icon>
+      </a>
+    </div>
+    <app-products-list
+      [products]="(featuredProducts$ | async) || []"
+      [loading]="false"
+      [error]="null">
+    </app-products-list>
+  </div>
+</section>
+
+<!-- Advantages Section -->
+<section class="advantages-section">
+  <div class="container">
+    <div class="advantages-grid">
+      <div *ngFor="let advantage of advantages" class="advantage-card">
+        <div class="advantage-icon">
+          <mat-icon>{{ advantage.icon }}</mat-icon>
+        </div>
+        <h3>{{ advantage.title }}</h3>
+        <p>{{ advantage.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>My Shop</h3>
+        <p>Your trusted destination for premium products and exceptional service.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Facebook"><mat-icon>facebook</mat-icon></a>
+          <a href="#" aria-label="Twitter"><mat-icon>alternate_email</mat-icon></a>
+          <a href="#" aria-label="Instagram"><mat-icon>photo_camera</mat-icon></a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a routerLink="/shop/products">Products</a></li>
+          <li><a routerLink="/shop/cart">Cart</a></li>
+          <li><a routerLink="/login">Login</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Shipping Info</a></li>
+          <li><a href="#">Returns</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <ul>
+          <li>Email: support@myshop.com</li>
+          <li>Phone: +1 (555) 123-4567</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 My Shop. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
