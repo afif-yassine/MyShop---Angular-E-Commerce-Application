@@ -1,157 +1,138 @@
-************\*\*\*************#### YASSINE AFIF ####************\*\*\*\*************
+# 🛍️ LuxeShop - Premium Angular E-Commerce Application
 
-# remote
+![Angular](https://img.shields.io/badge/Angular-18+-dd0031.svg?style=for-the-badge&logo=angular&logoColor=white)
+![NgRx](https://img.shields.io/badge/NgRx-State_Management-ba2bd2.svg?style=for-the-badge&logo=ngrx&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Material UI](https://img.shields.io/badge/Material_UI-0081CB?style=for-the-badge&logo=material-ui&logoColor=white)
 
-This project is an Angular-based e-commerce application that demonstrates modern Angular development practices including NgRx state management, Angular Material UI components, and Storybook for component development.
+**LuxeShop** is a state-of-the-art, premium e-commerce platform built with modern web technologies. It delivers a seamless, high-performance shopping experience with a focus on aesthetic excellence and robust architecture.
 
-## Project Goal
+---
 
-This application implements a shop management system with the following features:
+## ✨ Key Features
 
-- User authentication (login with JWT tokens)
-- Product listing with filtering and pagination
-- Product rating information display
-- State management using NgRx
-- Component development with Storybook
+### 🎨 **Premium UI/UX**
+*   **Responsive Design:** Fully fluid layout that adapts perfectly to mobile, tablet, and desktop.
+*   **Glassmorphism & Animations:** Subtle micro-interactions, smooth transitions, and modern glass effects.
+*   **Sticky Header:** Dynamic header that adapts to scroll position (transparent to white) for an immersive feel.
+*   **Dark/Light Mode Ready:** Built with CSS variables and Tailwind for easy theming.
 
-## Getting Started
+### 🛒 **Shopping Experience**
+*   **Product Catalog:** Dynamic product listing with filtering by category.
+*   **Product Details:** Rich product pages with image galleries, stock status, and reviews.
+*   **Shopping Cart:** Real-time cart management with persistent state.
+*   **Checkout Process:** Multi-step checkout flow (Shipping -> Payment -> Confirmation).
+*   **Wishlist:** Save favorite items for later (persisted locally).
+
+### 🔐 **Authentication & User Accounts**
+*   **Secure Auth:** Login and Registration with JWT-based authentication flow (mocked for demo).
+*   **User Dashboard:** Personalized area to view order history and manage profile.
+*   **Admin Dashboard:** Dedicated area for product management (CRUD operations).
+
+### ⚡ **Technical Excellence**
+*   **State Management:** Powered by **NgRx** (Store, Effects, Selectors) for predictable state changes.
+*   **Mock API:** Robust `ShopApiService` simulating a real backend with `localStorage` persistence.
+*   **Performance:** Lazy loading of modules (`Shop`, `Admin`, `Account`) for fast initial load.
+*   **Robust Error Handling:** Global error interception and user-friendly notifications.
+
+---
+
+## 🛠️ Tech Stack
+
+*   **Framework:** [Angular 18+](https://angular.io/)
+*   **State Management:** [NgRx](https://ngrx.io/) (Redux pattern)
+*   **Styling:** 
+    *   [Tailwind CSS](https://tailwindcss.com/) (Utility-first)
+    *   [Angular Material](https://material.angular.io/) (Components)
+    *   Custom CSS Variables for theming
+*   **Icons:** Material Icons & SVG
+*   **Tooling:** Angular CLI, ESLint, Prettier
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn
+*   Node.js (v18 or higher)
+*   npm (v9 or higher)
 
 ### Installation
 
-1. Install dependencies:
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/yourusername/luxeshop.git
+    cd luxeshop
+    ```
 
-```bash
-npm install
+2.  **Install dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Start the development server**
+    ```bash
+    npm start
+    ```
+
+4.  **Open in browser**
+    Navigate to `http://localhost:4200/`
+
+---
+
+## 📂 Project Structure
+
+```
+src/
+├── app/
+│   ├── components/      # Shared UI components (Header, Footer, Cards)
+│   ├── pages/           # Top-level pages (Home, Auth, Account)
+│   ├── services/        # Data services (API, Auth)
+│   ├── shop/            # Shop feature module (Product List, Details, Cart)
+│   ├── state/           # NgRx State (Actions, Reducers, Selectors, Effects)
+│   │   ├── auth/
+│   │   ├── cart/
+│   │   ├── products/
+│   │   └── orders/
+│   └── app.component.ts # Root component
+├── assets/              # Static assets (Images, Icons)
+├── mocks/               # Mock data for development
+└── styles.css           # Global styles and Tailwind imports
 ```
 
-### Running the Application
+---
 
-1. Start the development server:
+## 🧩 Architecture Highlights
 
-```bash
-npm start
-# or
-ng serve
-```
+### **State Management (NgRx)**
+The application uses a centralized store to manage data consistency across components.
+*   **Products:** Fetched once and cached, with stock updates reflected instantly.
+*   **Cart:** Persisted to `localStorage` so users don't lose items on refresh.
+*   **Auth:** Token-based session management with auto-login capabilities.
 
-2. Open your browser and navigate to `http://localhost:4200/`
+### **Mock Backend**
+To ensure a realistic experience without a running server, `ShopApiService` intercepts HTTP calls and mimics a database using browser storage. This allows for:
+*   Persistent User Sessions
+*   Persistent Order History
+*   Real-time Stock Decrementing
 
-The application will automatically reload when you modify source files.
+---
 
-### Running Storybook
+## 🤝 Contributing
 
-To view and develop components in isolation:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-```bash
-npm run storybook
-```
+1.  Fork the project
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
-Storybook will be available at `http://localhost:6006/`
+---
 
-### MSW (Mock Service Worker)
+## 📄 License
 
-The project uses MSW to mock API endpoints during development. The mock service worker is automatically configured and will intercept API calls to:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- `/api/auth/token/` - Login endpoint
-- `/api/auth/token/refresh/` - Token refresh endpoint
-- `/api/products/` - Products listing endpoint
-- `/api/products/:id/rating/` - Product rating endpoint
+---
 
-No additional configuration is needed - MSW runs automatically in development mode.
-
-## Project Structure
-
-### State Management (NgRx)
-
-The application uses NgRx for state management. State slices are located in:
-
-- **Auth State**: `src/app/state/auth/`
-- **Products State**: `src/app/state/products/`
-- **Cart State**: `src/app/state/cart/`
-- **Wishlist State**: `src/app/state/wishlist/`
-- **Reviews State**: `src/app/state/reviews/`
-- **Orders State**: `src/app/state/orders/`
-
-State is registered in `src/app/app.config.ts` using `provideStore()` and effects are registered with `provideEffects()`.
-
-### Architecture
-
-The application follows a modular architecture with lazy loading:
-
-- **Core Modules**:
-  - `ShopModule`: Products, Cart, Checkout, Wishlist
-  - `AccountModule`: User Profile, Orders
-  - `AdminModule`: Dashboard, Stats
-
-- **Standalone Components**: Used throughout for better tree-shaking and modularity.
-
-### API Layer
-
-The `ShopApiService` (`src/app/services/shop-api.service.ts`) handles all HTTP requests, including new endpoints for wishlist, reviews, and orders.
-
-### Routing
-
-Routes are defined in `src/app/app.routes.ts` and use lazy loading:
-
-- `/shop` - Shop module (Products, Cart, Checkout, Wishlist)
-- `/account` - Account module (Profile, Orders)
-- `/admin` - Admin module (Dashboard)
-- `/login` - Login page
-
-## Quick Usage Flow
-
-1. **Login**
-   - Navigate to `/login`
-   - Enter credentials (demo/demo for testing)
-   - Submit the form
-   - Access token is stored in NgRx auth state
-
-2. **View Products**
-   - Navigate to `/shop/products`
-   - Use filters (min rating, ordering)
-   - Products are loaded via NgRx effects
-   - Pagination is available
-
-3. **Check Product Rating**
-   - Navigate to `/shop/rating`
-   - Enter a product ID
-   - View rating information (average rating, count)
-
-4. **Storybook**
-   - Run `npm run storybook`
-   - Browse component stories
-   - Test components in isolation
-
-## Building
-
-To build the project for production:
-
-```bash
-npm run build
-```
-
-The build artifacts will be stored in the `dist/` directory.
-
-## Testing
-
-To run unit tests:
-
-```bash
-npm test
-```
-
-## Additional Resources
-
-- [Angular Documentation](https://angular.dev)
-- [NgRx Documentation](https://ngrx.io)
-- [Angular Material](https://material.angular.io)
-- [Storybook Documentation](https://storybook.js.org)
-
-## Documentation
-
-For detailed architecture documentation, see [docs/architecture.md](./docs/architecture.md).
+*Built with ❤️ by the LuxeShop Team*
