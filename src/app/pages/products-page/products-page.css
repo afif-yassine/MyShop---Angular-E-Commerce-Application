@@ -1,129 +1,124 @@
-.products-page {
-  max-width: 1200px;
+.products-container {
+  min-height: 100vh;
+  height: auto;
+  background-color: #f8f9fa;
+}
+
+.filters-sidenav {
+  width: 280px;
+  padding: 16px;
+  border-right: 1px solid rgba(0,0,0,0.05);
+  background: white;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.filters-sidenav::-webkit-scrollbar {
+  display: none !important;
+}
+
+::ng-deep .filters-sidenav .mat-drawer-inner-container {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+::ng-deep .filters-sidenav .mat-drawer-inner-container::-webkit-scrollbar {
+  display: none !important;
+}
+
+.products-content {
+  padding: 0;
+  background-color: #f8f9fa;
+}
+
+.content-wrapper {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: var(--spacing-xl) var(--spacing-md);
+  padding: 32px;
 }
 
 .products-header {
-  text-align: center;
-  margin-bottom: var(--spacing-2xl);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 32px;
 }
 
-.products-header h1 {
-  font-size: var(--font-size-3xl);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0 0 var(--spacing-sm) 0;
+.subtitle {
+  color: #666;
+  margin-top: 8px;
+  font-size: 1.1rem;
 }
 
-.products-header .subtitle {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-secondary);
-  margin: 0;
+.filter-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.filters-card {
-  margin-bottom: var(--spacing-xl);
-  box-shadow: var(--shadow-sm);
-}
-
-.filters-form {
-  width: 100%;
-}
-
-.filters-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: var(--spacing-md);
-  align-items: end;
-}
-
-.filter-field {
-  width: 100%;
-}
-
-.apply-button {
-  height: 56px;
-  white-space: nowrap;
+@media (max-width: 960px) {
+  .filters-sidenav {
+    width: 100%;
+    max-width: 320px;
+  }
 }
 
 .loading-container,
 .error-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  padding: var(--spacing-3xl) var(--spacing-md);
-  min-height: 400px;
-}
-
-.loading-container p {
-  margin-top: var(--spacing-lg);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-lg);
+  padding: 48px 0;
 }
 
 .error-card {
-  max-width: 500px;
+  max-width: 400px;
   text-align: center;
-}
-
-.error-card mat-card-content {
-  padding: var(--spacing-xl);
+  padding: 24px;
 }
 
 .error-icon {
-  font-size: 64px;
-  width: 64px;
-  height: 64px;
-  margin-bottom: var(--spacing-md);
-  color: var(--color-error);
-}
-
-.error-card h3 {
-  margin: 0 0 var(--spacing-sm) 0;
-  color: var(--color-text-primary);
-}
-
-.error-card p {
-  margin: 0 0 var(--spacing-lg) 0;
-  color: var(--color-text-secondary);
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+  margin-bottom: 16px;
 }
 
 .products-section {
-  margin-top: var(--spacing-xl);
+  position: relative;
+  transition: opacity 0.2s;
+}
+
+.products-section.is-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.swr-loader {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .pagination-container {
-  margin-top: var(--spacing-2xl);
+  margin-top: 48px;
   display: flex;
   justify-content: center;
-  background: white;
-  padding: var(--spacing-md);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
 }
 
-@media (max-width: 768px) {
-  .products-page {
-    padding: var(--spacing-md) var(--spacing-sm);
-  }
-
-  .products-header h1 {
-    font-size: var(--font-size-2xl);
-  }
-
-  .filters-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
-  }
-
-  .apply-button {
-    width: 100%;
-    height: 48px;
-  }
-
-  .pagination-container {
-    padding: var(--spacing-sm);
-  }
+/* Override Paginator Styles */
+::ng-deep .mat-mdc-paginator {
+  background: transparent !important;
 }

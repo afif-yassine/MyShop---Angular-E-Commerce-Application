@@ -9,10 +9,16 @@ import { Product } from '../../../mocks/data';
 const sampleProduct: Product = {
   id: 1,
   name: 'Stylo Bleu',
+  description: 'High quality blue pen',
+  category: 'Stationery',
   price: 2.5,
   created_at: '2025-01-10T10:00:00Z',
   owner_id: 10,
   ratings: [{ user_id: 2, value: 4 }],
+  rating: 4,
+  stock: 10,
+  image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?auto=format&fit=crop&w=800&q=80',
+  features: ['Feature 1', 'Feature 2']
 };
 
 const meta: Meta<ProductDetailsPageComponent> = {

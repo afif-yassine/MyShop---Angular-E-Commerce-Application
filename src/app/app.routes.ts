@@ -36,14 +36,23 @@ export const routes: Routes = [
   // 👉 Exo pages
   { path: 'login', component: LoginPagePremiumComponent },
   { path: 'register', component: RegisterPagePremiumComponent },
-  { path: 'account', component: AccountDashboardComponent },
-  { path: 'shop/products', component: ProductsPageComponent },
-  { path: 'shop/products/:id', component: ProductDetailsPageComponent },
-  { path: 'shop/rating', component: ProductRatingPageComponent },
-  { path: 'shop/cart', component: CartPageComponent },
-  { path: 'shop/checkout', component: Step1SummaryComponent, canActivate: [authGuard] },
-  { path: 'shop/checkout/address', component: Step2AddressComponent, canActivate: [authGuard] },
-  { path: 'shop/checkout/confirm', component: Step3ConfirmComponent, canActivate: [authGuard] },
+  
+  // Lazy Loaded Modules
+  { 
+    path: 'account', 
+    loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule),
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'shop', 
+    loadChildren: () => import('./shop/shop.module').then(m => m.ShopModule) 
+    // Removed authGuard to allow guest access
+  },
+  { 
+    path: 'admin', 
+    loadChildren: () => import('./pages/admin/admin.module').then(m => m.AdminModule),
+    canActivate: [authGuard] // Protect admin route
+  },
 
   { path: '**', redirectTo: '' },
 ];

@@ -21,172 +21,184 @@ import { CartItem } from '../../state/cart/cart.actions';
     MatFormFieldModule,
   ],
   template: `
-    <mat-card class="cart-item-card">
-      <mat-card-content>
-        <div class="cart-item-content">
-          <div class="item-image">
-            <div class="image-placeholder">
-              <mat-icon>inventory_2</mat-icon>
-            </div>
-          </div>
-          <div class="item-info">
+    <mat-card class="cart-item-card" appearance="outlined">
+      <div class="item-content">
+        <!-- Image -->
+        <div class="item-image-container">
+          <img [src]="'https://picsum.photos/seed/' + item.product.id + '/200/200'" [alt]="item.product.name" class="item-image">
+        </div>
+
+        <!-- Details -->
+        <div class="item-details">
+          <div class="item-header">
             <h3 class="item-name">{{ item.product.name }}</h3>
-            <p class="item-unit-price">{{ item.product.price | number: '1.2-2' }} € each</p>
+            <span class="item-price-mobile">{{ item.product.price | currency:'USD' }}</span>
           </div>
-          <div class="item-controls">
-            <div class="quantity-control">
-              <button mat-icon-button (click)="decreaseQuantity()" [disabled]="item.quantity <= 1">
-                <mat-icon>remove</mat-icon>
-              </button>
-              <span class="quantity-display">{{ item.quantity }}</span>
-              <button mat-icon-button (click)="increaseQuantity()">
-                <mat-icon>add</mat-icon>
-              </button>
-            </div>
-            <div class="item-total">
-              <span class="total-label">Total</span>
-              <span class="total-amount">{{ item.product.price * item.quantity | number: '1.2-2' }} €</span>
-            </div>
-            <button mat-icon-button color="warn" (click)="onRemove()" aria-label="Remove item" class="remove-button">
-              <mat-icon>delete_outline</mat-icon>
+          <p class="item-meta">Product ID: {{ item.product.id }}</p>
+          <p class="stock-status in-stock">In Stock</p>
+        </div>
+
+        <!-- Quantity -->
+        <div class="item-quantity">
+          <div class="qty-controls">
+            <button mat-icon-button (click)="decreaseQuantity()" [disabled]="item.quantity <= 1">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span class="qty-value">{{ item.quantity }}</span>
+            <button mat-icon-button (click)="increaseQuantity()">
+              <mat-icon>add</mat-icon>
             </button>
           </div>
         </div>
-      </mat-card-content>
+
+        <!-- Total -->
+        <div class="item-total hidden-mobile">
+          <span class="total-price">{{ item.product.price * item.quantity | currency:'USD' }}</span>
+          <span class="unit-price">{{ item.product.price | currency:'USD' }} each</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="item-actions">
+          <button mat-icon-button color="warn" (click)="onRemove()" matTooltip="Remove Item">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </div>
     </mat-card>
   `,
-  styles: [
-    `
-      .cart-item-card {
-        margin-bottom: var(--spacing-md);
-        box-shadow: var(--shadow-sm);
-        border-radius: var(--radius-lg);
-        transition: box-shadow var(--transition-base);
+  styles: [`
+    .cart-item-card {
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .item-content {
+      display: grid;
+      grid-template-columns: 100px 2fr 1fr 1fr auto;
+      gap: 24px;
+      padding: 16px;
+      align-items: center;
+    }
+
+    .item-image-container {
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+
+    .item-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .item-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      color: #333;
+    }
+
+    .item-meta {
+      font-size: 0.85rem;
+      color: #666;
+      margin: 0 0 4px 0;
+    }
+
+    .stock-status {
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .in-stock { color: #2e7d32; }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      background: #f5f5f5;
+      border-radius: 24px;
+      width: fit-content;
+    }
+
+    .qty-value {
+      min-width: 32px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .item-total {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .total-price {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .unit-price {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .item-price-mobile {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .item-content {
+        grid-template-columns: 80px 1fr;
+        grid-template-areas: 
+          "image details"
+          "image quantity"
+          "actions total";
+        gap: 12px;
       }
 
-      .cart-item-card:hover {
-        box-shadow: var(--shadow-md);
-      }
-
-      .cart-item-content {
-        display: grid;
-        grid-template-columns: 80px 1fr auto;
-        gap: var(--spacing-lg);
-        align-items: center;
-      }
-
-      .item-image {
+      .item-image-container {
+        grid-area: image;
         width: 80px;
         height: 80px;
       }
 
-      .image-placeholder {
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: var(--radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
+      .item-details {
+        grid-area: details;
       }
 
-      .image-placeholder mat-icon {
-        font-size: 32px;
-        width: 32px;
-        height: 32px;
-      }
-
-      .item-info {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xs);
-      }
-
-      .item-name {
-        margin: 0;
-        font-size: var(--font-size-lg);
-        font-weight: 600;
-        color: var(--color-text-primary);
-      }
-
-      .item-unit-price {
-        margin: 0;
-        font-size: var(--font-size-sm);
-        color: var(--color-text-secondary);
-      }
-
-      .item-controls {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-lg);
-      }
-
-      .quantity-control {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-        background: var(--color-surface);
-        border-radius: var(--radius-md);
-        padding: var(--spacing-xs);
-      }
-
-      .quantity-display {
-        min-width: 40px;
-        text-align: center;
-        font-weight: 600;
-        font-size: var(--font-size-base);
+      .item-quantity {
+        grid-area: quantity;
       }
 
       .item-total {
-        display: flex;
-        flex-direction: column;
+        grid-area: total;
         align-items: flex-end;
-        min-width: 100px;
       }
 
-      .total-label {
-        font-size: var(--font-size-xs);
-        color: var(--color-text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+      .item-actions {
+        grid-area: actions;
       }
 
-      .total-amount {
+      .hidden-mobile {
+        display: block; /* Show total on mobile in different spot */
+      }
+      
+      .item-total.hidden-mobile {
+        display: none; /* Hide the desktop total column */
+      }
+
+      .item-price-mobile {
+        display: block;
         font-weight: 700;
-        font-size: var(--font-size-lg);
-        color: var(--color-primary);
+        color: var(--mat-sys-primary);
       }
-
-      .remove-button {
-        transition: transform var(--transition-fast);
-      }
-
-      .remove-button:hover {
-        transform: scale(1.1);
-      }
-
-      @media (max-width: 768px) {
-        .cart-item-content {
-          grid-template-columns: 60px 1fr;
-          gap: var(--spacing-md);
-        }
-
-        .item-controls {
-          grid-column: 1 / -1;
-          justify-content: space-between;
-          margin-top: var(--spacing-sm);
-          padding-top: var(--spacing-sm);
-          border-top: 1px solid var(--color-border);
-        }
-
-        .item-image {
-          width: 60px;
-          height: 60px;
-        }
-      }
-    `,
-  ],
+    }
+  `]
 })
 export class CartItemComponent {
   @Input() item!: CartItem;

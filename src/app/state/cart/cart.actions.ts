@@ -28,3 +28,20 @@ export const loadCartFromStorage = createAction(
   props<{ items: CartItem[] }>()
 );
 
+export const applyPromoCode = createAction(
+  '[Cart] Apply Promo Code',
+  props<{ code: string }>()
+);
+
+export const applyPromoCodeSuccess = createAction(
+  '[Cart] Apply Promo Code Success',
+  props<{ code: string; discount: number }>()
+);
+
+export const applyPromoCodeFailure = createAction(
+  '[Cart] Apply Promo Code Failure',
+  props<{ error: string }>()
+);
+
+export const removePromoCode = createAction('[Cart] Remove Promo Code');
+

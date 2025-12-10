@@ -1,20 +1,35 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
-import { ShopHeaderComponent } from './shop/shared/shop-header.component';
+import { HeaderComponent } from './components/layout/header.component';
+import { ShopFooterComponent } from './shop/shared/shop-footer.component';
 import * as CartActions from './state/cart/cart.actions';
 import * as OrdersActions from './state/orders/orders.actions';
+import * as AuthActions from './state/auth/auth.actions';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ShopHeaderComponent],
+  imports: [RouterOutlet, HeaderComponent, ShopFooterComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App implements OnInit {
   protected readonly title = signal('my-shop');
   private store = inject(Store);
+  private router = inject(Router);
+  
+  isHomePage = signal(false);
+
+  constructor() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      const url = this.router.url.split('?')[0];
+      this.isHomePage.set(url === '/' || url === '/home');
+    });
+  }
 
   ngOnInit() {
     // Load cart from localStorage on app initialization
@@ -38,6 +53,9 @@ export class App implements OnInit {
     } catch (error) {
       console.error('Failed to load orders from localStorage:', error);
     }
+
+    // Load auth from localStorage
+    this.store.dispatch(AuthActions.loadAuthFromStorage());
   }
 }
 

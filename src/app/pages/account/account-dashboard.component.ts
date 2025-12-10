@@ -39,16 +39,13 @@ export class AccountDashboardComponent implements OnInit {
     avatar: 'JD',
   };
 
-  orders$ = this.store.select(selectAllOrders).pipe(
-    map(orders => orders || [])
-  );
-
-  wishlist = [
-    { id: 1, name: 'Premium Product 1', price: 99.99, image: '🎁' },
-    { id: 2, name: 'Premium Product 2', price: 149.99, image: '📦' },
+  links = [
+    { label: 'Profile', path: '/account/profile' },
+    { label: 'Orders', path: '/account/orders' },
+    { label: 'Wishlist', path: '/account/wishlist' }
   ];
 
-  displayedColumns: string[] = ['id', 'date', 'total', 'status', 'actions'];
+  activeLink = this.links[0].path;
 
   ngOnInit() {
     // Redirect if not logged in
@@ -60,19 +57,9 @@ export class AccountDashboardComponent implements OnInit {
           this.router.navigate(['/login']);
         }
       });
-  }
-
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'Delivered':
-        return 'success';
-      case 'Shipped':
-        return 'primary';
-      case 'Processing':
-        return 'accent';
-      default:
-        return '';
-    }
+      
+    // Set active link based on current url
+    this.activeLink = this.router.url;
   }
 }
 

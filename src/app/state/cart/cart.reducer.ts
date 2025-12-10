@@ -3,10 +3,16 @@ import * as CartActions from './cart.actions';
 
 export interface CartState {
   items: CartActions.CartItem[];
+  promoCode: string | null;
+  discount: number;
+  error: string | null;
 }
 
 export const initialState: CartState = {
   items: [],
+  promoCode: null,
+  discount: 0,
+  error: null
 };
 
 export const cartReducer = createReducer(
@@ -53,11 +59,34 @@ export const cartReducer = createReducer(
   on(CartActions.clearCart, (state) => ({
     ...state,
     items: [],
+    promoCode: null,
+    discount: 0
   })),
 
   on(CartActions.loadCartFromStorage, (state, { items }) => ({
     ...state,
     items,
+  })),
+
+  on(CartActions.applyPromoCodeSuccess, (state, { code, discount }) => ({
+    ...state,
+    promoCode: code,
+    discount,
+    error: null
+  })),
+
+  on(CartActions.applyPromoCodeFailure, (state, { error }) => ({
+    ...state,
+    error,
+    promoCode: null,
+    discount: 0
+  })),
+
+  on(CartActions.removePromoCode, (state) => ({
+    ...state,
+    promoCode: null,
+    discount: 0,
+    error: null
   }))
 );
 

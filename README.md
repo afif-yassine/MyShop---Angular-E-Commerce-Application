@@ -71,50 +71,37 @@ No additional configuration is needed - MSW runs automatically in development mo
 The application uses NgRx for state management. State slices are located in:
 
 - **Auth State**: `src/app/state/auth/`
-  - `auth.actions.ts` - Auth actions (login, loginSuccess, loginFailure)
-  - `auth.reducer.ts` - Auth reducer and state interface
-  - `auth.selectors.ts` - Auth selectors
-  - `auth.effects.ts` - Auth side effects (API calls)
-
 - **Products State**: `src/app/state/products/`
-  - `products.actions.ts` - Products actions (loadProducts, loadProductsSuccess, loadProductsFailure)
-  - `products.reducer.ts` - Products reducer and state interface
-  - `products.selectors.ts` - Products selectors
-  - `products.effects.ts` - Products side effects (API calls)
+- **Cart State**: `src/app/state/cart/`
+- **Wishlist State**: `src/app/state/wishlist/`
+- **Reviews State**: `src/app/state/reviews/`
+- **Orders State**: `src/app/state/orders/`
 
 State is registered in `src/app/app.config.ts` using `provideStore()` and effects are registered with `provideEffects()`.
 
 ### Architecture
 
-The application follows a container/presentational component pattern:
+The application follows a modular architecture with lazy loading:
 
-- **Container Components** (pages): Connect to NgRx store, handle business logic
-  - `src/app/pages/login-page/` - Login page
-  - `src/app/pages/products-page/` - Products listing page
-  - `src/app/pages/product-rating-page/` - Product rating page
+- **Core Modules**:
+  - `ShopModule`: Products, Cart, Checkout, Wishlist
+  - `AccountModule`: User Profile, Orders
+  - `AdminModule`: Dashboard, Stats
 
-- **Presentational Components**: Pure UI components, no NgRx dependencies
-  - `src/app/components/product-card/` - Product card display
-  - `src/app/components/products-list/` - Products list display
-  - `src/app/components/login-form/` - Login form component
+- **Standalone Components**: Used throughout for better tree-shaking and modularity.
 
 ### API Layer
 
-The `ShopApiService` (`src/app/services/shop-api.service.ts`) handles all HTTP requests:
-
-- `login(username, password)` - Authenticate user
-- `refresh(refreshToken)` - Refresh access token
-- `getProducts(params)` - Fetch products with filters
-- `getRating(productId)` - Get product rating information
+The `ShopApiService` (`src/app/services/shop-api.service.ts`) handles all HTTP requests, including new endpoints for wishlist, reviews, and orders.
 
 ### Routing
 
-Routes are defined in `src/app/app.routes.ts`:
+Routes are defined in `src/app/app.routes.ts` and use lazy loading:
 
+- `/shop` - Shop module (Products, Cart, Checkout, Wishlist)
+- `/account` - Account module (Profile, Orders)
+- `/admin` - Admin module (Dashboard)
 - `/login` - Login page
-- `/shop/products` - Products listing page
-- `/shop/rating` - Product rating page
-- `/app` - App placeholder with navigation links
 
 ## Quick Usage Flow
 

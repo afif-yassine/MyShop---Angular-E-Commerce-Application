@@ -16,122 +16,20 @@
     </div>
 
     <!-- Tabs Navigation -->
-    <mat-tab-group class="account-tabs">
-      <!-- Orders Tab -->
-      <mat-tab label="Orders">
-        <div class="tab-content">
-          <mat-card class="premium-card">
-            <mat-card-header>
-              <mat-card-title>Recent Orders</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <ng-container *ngIf="orders$ | async as orders">
-                <div *ngIf="orders.length === 0" class="empty-state">
-                  <mat-icon>shopping_bag</mat-icon>
-                  <p>No orders yet. Start shopping to see your orders here!</p>
-                  <button mat-raised-button color="primary" routerLink="/shop/products" class="btn btn-primary">
-                    Shop Now
-                  </button>
-                </div>
-                
-                <table *ngIf="orders.length > 0" mat-table [dataSource]="orders" class="orders-table">
-                <ng-container matColumnDef="id">
-                  <th mat-header-cell *matHeaderCellDef>Order Number</th>
-                  <td mat-cell *matCellDef="let order">
-                    <strong>{{ order.orderNumber }}</strong>
-                  </td>
-                </ng-container>
+    <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="account-tabs">
+      <a mat-tab-link *ngFor="let link of links"
+         [routerLink]="link.path"
+         routerLinkActive #rla="routerLinkActive"
+         [active]="rla.isActive">
+        {{ link.label }}
+      </a>
+    </nav>
 
-                <ng-container matColumnDef="date">
-                  <th mat-header-cell *matHeaderCellDef>Date</th>
-                  <td mat-cell *matCellDef="let order">{{ order.date }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="total">
-                  <th mat-header-cell *matHeaderCellDef>Total</th>
-                  <td mat-cell *matCellDef="let order">
-                    <strong>{{ order.total | number: '1.2-2' }} €</strong>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="status">
-                  <th mat-header-cell *matHeaderCellDef>Status</th>
-                  <td mat-cell *matCellDef="let order">
-                    <mat-chip [color]="getStatusColor(order.status)">
-                      {{ order.status }}
-                    </mat-chip>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef>Actions</th>
-                  <td mat-cell *matCellDef="let order">
-                    <button mat-icon-button>
-                      <mat-icon>visibility</mat-icon>
-                    </button>
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-              </table>
-              </ng-container>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </mat-tab>
-
-      <!-- Wishlist Tab -->
-      <mat-tab label="Wishlist">
-        <div class="tab-content">
-          <div class="wishlist-grid">
-            <mat-card *ngFor="let item of wishlist" class="wishlist-item premium-card">
-              <div class="wishlist-image">{{ item.image }}</div>
-              <mat-card-content>
-                <h3>{{ item.name }}</h3>
-                <p class="wishlist-price">{{ item.price | number: '1.2-2' }} €</p>
-              </mat-card-content>
-              <mat-card-actions>
-                <button mat-raised-button color="primary" class="btn btn-primary">
-                  Add to Cart
-                </button>
-                <button mat-icon-button>
-                  <mat-icon>favorite</mat-icon>
-                </button>
-              </mat-card-actions>
-            </mat-card>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Settings Tab -->
-      <mat-tab label="Settings">
-        <div class="tab-content">
-          <mat-card class="premium-card">
-            <mat-card-header>
-              <mat-card-title>Account Settings</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="settings-section">
-                <h3>Personal Information</h3>
-                <p>Update your personal details and preferences.</p>
-                <button mat-raised-button class="btn btn-primary">Edit Information</button>
-              </div>
-              <div class="settings-section">
-                <h3>Security</h3>
-                <p>Manage your password and security settings.</p>
-                <button mat-raised-button class="btn btn-outline">Change Password</button>
-              </div>
-              <div class="settings-section">
-                <h3>Notifications</h3>
-                <p>Control how you receive updates and alerts.</p>
-                <button mat-raised-button class="btn btn-outline">Manage Notifications</button>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
+    <div class="tab-content">
+      <mat-tab-nav-panel #tabPanel>
+        <router-outlet></router-outlet>
+      </mat-tab-nav-panel>
+    </div>
   </div>
 </div>
 

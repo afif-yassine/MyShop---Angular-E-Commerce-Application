@@ -28,3 +28,11 @@ export const selectLastQueryParams = createSelector(
   (state) => state.lastQueryParams
 );
 
+export const selectUniqueCategories = createSelector(
+  selectProductsList,
+  (products) => {
+    const categories = products.map(p => p.category);
+    return [...new Set(categories)].sort();
+  }
+);
+

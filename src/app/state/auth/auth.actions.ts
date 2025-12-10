@@ -16,3 +16,10 @@ export const loginFailure = createAction(
 );
 
 export const logout = createAction('[Auth] Logout');
+
+export const register = createAction(
+  '[Auth] Register',
+  props<{ name: string; email: string; password: string }>()
+);
+
+export const loadAuthFromStorage = createAction('[Auth] Load From Storage');

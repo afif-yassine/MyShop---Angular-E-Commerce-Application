@@ -12,14 +12,11 @@ export interface Order {
     quantity: number;
     price: number;
   }>;
-  address?: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
+  shippingAddress?: {
+    street: string;
     city: string;
+    zipCode: string;
     country: string;
-    zip: string;
   };
 }
 
@@ -36,5 +33,17 @@ export const loadOrdersFromStorage = createAction(
 export const updateOrderStatus = createAction(
   '[Orders] Update Order Status',
   props<{ orderId: string; status: Order['status'] }>()
+);
+
+export const loadOrders = createAction('[Orders] Load Orders');
+
+export const loadOrdersSuccess = createAction(
+  '[Orders] Load Orders Success',
+  props<{ orders: Order[] }>()
+);
+
+export const loadOrdersFailure = createAction(
+  '[Orders] Load Orders Failure',
+  props<{ error: string }>()
 );
 

@@ -1,5 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import * as ProductsActions from './products.actions';
+import * as OrdersActions from '../orders/orders.actions';
 import { Product } from '../../../mocks/data';
 
 export interface ProductsState {
@@ -40,6 +41,30 @@ export const productsReducer = createReducer(
     ...state,
     loading: false,
     error,
-  }))
+  })),
+
+  on(ProductsActions.addProduct, (state, { product }) => ({
+    ...state,
+    list: [product, ...state.list],
+    count: state.count + 1
+  })),
+
+  on(OrdersActions.addOrder, (state, { order }) => {
+    const updatedList = state.list.map(product => {
+      const orderItem = order.items.find(item => item.productId === product.id);
+      if (orderItem) {
+        return {
+          ...product,
+          stock: Math.max(0, product.stock - orderItem.quantity)
+        };
+      }
+      return product;
+    });
+
+    return {
+      ...state,
+      list: updatedList
+    };
+  })
 );
 

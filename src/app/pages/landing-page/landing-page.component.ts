@@ -55,10 +55,30 @@ export class LandingPageComponent implements OnInit {
   }
 
   categories = [
-    { id: 1, name: 'Electronics', icon: 'devices', gradient: 'from-blue-500 to-purple-600' },
-    { id: 2, name: 'Fashion', icon: 'checkroom', gradient: 'from-pink-500 to-rose-600' },
-    { id: 3, name: 'Home & Living', icon: 'home', gradient: 'from-green-500 to-emerald-600' },
-    { id: 4, name: 'Sports', icon: 'sports_soccer', gradient: 'from-orange-500 to-red-600' },
+    { 
+      id: 1, 
+      name: 'Electronics', 
+      image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
+      subtitle: 'Latest Gadgets'
+    },
+    { 
+      id: 2, 
+      name: 'Fashion', 
+      image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=800&q=80',
+      subtitle: 'Trending Styles'
+    },
+    { 
+      id: 3, 
+      name: 'Home & Living', 
+      image: 'https://images.unsplash.com/photo-1484101403633-562f891dc89a?auto=format&fit=crop&w=800&q=80',
+      subtitle: 'Modern Decor'
+    },
+    { 
+      id: 4, 
+      name: 'Accessories', 
+      image: 'https://images.unsplash.com/photo-1523293188086-b589b9b145e8?auto=format&fit=crop&w=800&q=80',
+      subtitle: 'Essential Details'
+    },
   ];
 
   advantages = [

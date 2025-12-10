@@ -13,3 +13,12 @@ export const selectCartTotal = createSelector(selectCartItems, (items) =>
   items.reduce((total, item) => total + item.product.price * item.quantity, 0)
 );
 
+export const selectPromoCode = createSelector(selectCartState, (state) => state.promoCode);
+export const selectDiscount = createSelector(selectCartState, (state) => state.discount);
+
+export const selectTotalWithDiscount = createSelector(
+  selectCartTotal,
+  selectDiscount,
+  (total, discount) => Math.max(0, total - discount)
+);
+

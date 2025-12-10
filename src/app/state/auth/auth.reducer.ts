@@ -18,7 +18,7 @@ export const initialState: AuthState = {
 export const authReducer = createReducer(
   initialState,
 
-  on(AuthActions.login, (state) => ({
+  on(AuthActions.login, AuthActions.register, (state) => ({
     ...state,
     loading: true,
     error: null,
@@ -38,11 +38,25 @@ export const authReducer = createReducer(
     error,
   })),
 
-  on(AuthActions.logout, (state) => ({
-    ...state,
-    access: null,
-    refresh: null,
-    loading: false,
-    error: null,
-  }))
+  on(AuthActions.logout, (state) => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    return {
+      ...state,
+      access: null,
+      refresh: null,
+      loading: false,
+      error: null,
+    };
+  }),
+
+  on(AuthActions.loadAuthFromStorage, (state) => {
+    const access = localStorage.getItem('access_token');
+    const refresh = localStorage.getItem('refresh_token');
+    return {
+      ...state,
+      access,
+      refresh,
+    };
+  })
 );

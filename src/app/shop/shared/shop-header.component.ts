@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { selectCartCount } from '../../state/cart/cart.selectors';
 import { selectAllNavigationItems } from '../../state/navigation/navigation.selectors';
 import { selectIsLoggedIn } from '../../state/auth/auth.selectors';
@@ -27,30 +29,76 @@ import { map } from 'rxjs/operators';
     MatToolbarModule,
     MatMenuModule,
     MatDividerModule,
+    MatInputModule,
+    MatFormFieldModule
   ],
+  styles: [`
+    .header-spacer {
+      flex: 1 1 auto;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--mat-sys-on-primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-field {
+      font-size: 14px;
+      width: 300px;
+      margin-left: 24px;
+      margin-right: 24px;
+    }
+    ::ng-deep .search-field .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+    ::ng-deep .mat-toolbar-single-row {
+      height: 72px;
+    }
+    .nav-link {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-size: 0.875rem;
+    }
+  `],
   template: `
-    <mat-toolbar color="primary">
-      <a mat-button routerLink="/">
-        <mat-icon>store</mat-icon>
-        <span>My Shop</span>
+    <mat-toolbar color="primary" class="mat-elevation-z4">
+      <a routerLink="/" class="logo">
+        <mat-icon>diamond</mat-icon>
+        <span>Luxe Shop</span>
       </a>
       
-      <span style="flex: 1 1 auto;"></span>
+      <!-- Search Bar (Desktop) -->
+      <mat-form-field appearance="outline" class="search-field hidden-mobile" density="compact">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput placeholder="Search for products...">
+      </mat-form-field>
+
+      <span class="header-spacer"></span>
       
+      <!-- Desktop Navigation -->
       <ng-container *ngIf="visibleNavItems$ | async as navItems">
-        <a
-          *ngFor="let item of navItems"
-          mat-button
-          [routerLink]="item.path"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: item.path === '/' }">
-          <mat-icon>{{ item.icon }}</mat-icon>
-          <span>{{ item.label }}</span>
-        </a>
+        <div class="hidden-mobile">
+          <a
+            *ngFor="let item of navItems"
+            mat-button
+            [routerLink]="item.path"
+            routerLinkActive="active"
+            class="nav-link"
+            [routerLinkActiveOptions]="{ exact: item.path === '/' }">
+            {{ item.label }}
+          </a>
+        </div>
       </ng-container>
       
-      <span style="flex: 1 1 auto;"></span>
-      
+      <!-- Actions -->
       <a
         mat-icon-button
         routerLink="/shop/cart"
@@ -60,18 +108,12 @@ import { map } from 'rxjs/operators';
         matBadgeColor="accent"
         matBadgeSize="small"
         aria-label="Shopping cart">
-        <mat-icon>shopping_cart</mat-icon>
+        <mat-icon>shopping_bag</mat-icon>
       </a>
       
       <ng-container *ngIf="!(isLoggedIn$ | async)">
-        <a mat-button routerLink="/login" routerLinkActive="active">
-          <mat-icon>login</mat-icon>
-          <span>Login</span>
-        </a>
-        <a mat-raised-button color="accent" routerLink="/register" routerLinkActive="active">
-          <mat-icon>person_add</mat-icon>
-          <span>Register</span>
-        </a>
+        <a mat-button routerLink="/login" class="hidden-mobile">Login</a>
+        <a mat-raised-button color="accent" routerLink="/register" class="hidden-mobile" style="margin-left: 8px;">Register</a>
       </ng-container>
       
       <button
@@ -85,7 +127,11 @@ import { map } from 'rxjs/operators';
       <mat-menu #userMenu="matMenu">
         <button mat-menu-item routerLink="/account">
           <mat-icon>person</mat-icon>
-          <span>Account</span>
+          <span>My Account</span>
+        </button>
+        <button mat-menu-item routerLink="/account/orders">
+          <mat-icon>receipt_long</mat-icon>
+          <span>My Orders</span>
         </button>
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="logout()">

@@ -6,6 +6,10 @@ export interface ProductsQueryParams {
   pageSize?: number;
   minRating?: number;
   ordering?: string;
+  search?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export interface ProductsResponse {
@@ -28,5 +32,10 @@ export const loadProductsSuccess = createAction(
 export const loadProductsFailure = createAction(
   '[Products] Load Products Failure',
   props<{ error: string }>()
+);
+
+export const addProduct = createAction(
+  '[Products] Add Product',
+  props<{ product: Product }>()
 );
 

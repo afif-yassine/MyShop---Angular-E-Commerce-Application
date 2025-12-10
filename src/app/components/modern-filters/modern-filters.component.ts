@@ -8,6 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatListModule } from '@angular/material/list';
 
 export interface FilterValues {
   search: string;
@@ -27,6 +31,14 @@ export interface FilterValues {
     MatIconModule,
     MatButtonModule,
     MatChipsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSliderModule,
+    MatExpansionModule,
+    MatRadioModule,
+    MatCheckboxModule,
+    MatListModule,
   ],
   templateUrl: './modern-filters.component.html',
   styleUrls: ['./modern-filters.component.css'],
@@ -47,13 +59,20 @@ export class ModernFiltersComponent {
     minRating: [0],
   });
 
+  @Input() categoriesList: string[] | null = [];
+
   categories = [
-    { value: 'all', label: 'All Categories' },
-    { value: 'electronics', label: 'Electronics' },
-    { value: 'fashion', label: 'Fashion' },
-    { value: 'home', label: 'Home & Living' },
-    { value: 'sports', label: 'Sports' },
+    { value: 'all', label: 'All Categories' }
   ];
+
+  ngOnChanges() {
+    if (this.categoriesList) {
+      this.categories = [
+        { value: 'all', label: 'All Categories' },
+        ...this.categoriesList.map(c => ({ value: c, label: c }))
+      ];
+    }
+  }
 
   sortOptions = [
     { value: '-created_at', label: 'Newest First' },
@@ -83,6 +102,13 @@ export class ModernFiltersComponent {
       minRating: 0,
     });
     this.clearFilters.emit();
+  }
+
+  formatLabel(value: number): string {
+    if (value >= 1000) {
+      return Math.round(value / 1000) + 'k';
+    }
+    return `${value}`;
   }
 
   get activeFiltersCount(): number {

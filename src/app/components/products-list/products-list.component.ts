@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { Product } from '../../../mocks/data';
 import { avgRating } from '../../../mocks/utils';
+import { ProductSkeletonComponent } from '../../shared/components/skeleton/product-skeleton.component';
 
 @Component({
   standalone: true,
   selector: 'app-products-list',
-  imports: [CommonModule, ProductCardComponent],
+  imports: [CommonModule, ProductCardComponent, ProductSkeletonComponent],
   templateUrl: './products-list.component.html',
   styleUrls: ['./products-list.component.css'],
 })

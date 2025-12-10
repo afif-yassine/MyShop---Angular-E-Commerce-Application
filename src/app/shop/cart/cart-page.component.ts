@@ -6,9 +6,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
 import { CartItemComponent } from './cart-item.component';
+import { PromoCodeInputComponent } from '../promotions/promo-code-input.component';
+import { PromoSummaryComponent } from '../promotions/promo-summary.component';
 import * as CartActions from '../../state/cart/cart.actions';
-import { selectCartItems, selectCartTotal } from '../../state/cart/cart.selectors';
+import { selectCartItems, selectCartTotal, selectDiscount, selectPromoCode, selectTotalWithDiscount } from '../../state/cart/cart.selectors';
 
 @Component({
   standalone: true,
@@ -20,150 +23,286 @@ import { selectCartItems, selectCartTotal } from '../../state/cart/cart.selector
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatDividerModule,
     CartItemComponent,
+    PromoCodeInputComponent,
+    PromoSummaryComponent
   ],
   template: `
-    <div class="cart-page">
-      <h1>Shopping Cart</h1>
+    <div class="cart-container">
+      <div class="cart-header">
+        <h1>Shopping Cart</h1>
+        <span class="item-count" *ngIf="(cartItems$ | async)?.length as count">
+          {{ count }} {{ count === 1 ? 'item' : 'items' }}
+        </span>
+      </div>
 
-      <div *ngIf="(cartItems$ | async)?.length === 0" class="empty-cart">
-        <mat-icon>shopping_cart</mat-icon>
-        <p>Your cart is empty</p>
-        <button mat-raised-button color="primary" routerLink="/shop/products">
-          Continue Shopping
+      <div *ngIf="(cartItems$ | async)?.length === 0" class="empty-state">
+        <div class="empty-icon-container">
+          <mat-icon>shopping_cart_checkout</mat-icon>
+        </div>
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven't added anything to your cart yet.</p>
+        <button mat-flat-button color="primary" routerLink="/shop/products">
+          Start Shopping
         </button>
       </div>
 
-      <div *ngIf="(cartItems$ | async)?.length! > 0" class="cart-content">
-        <div class="cart-items">
-          <app-cart-item
-            *ngFor="let item of cartItems$ | async"
-            [item]="item"
-            (quantityChange)="onQuantityChange(item.product.id, $event)"
-            (remove)="onRemoveItem(item.product.id)"
-          ></app-cart-item>
+      <div *ngIf="(cartItems$ | async)?.length! > 0" class="cart-layout">
+        <!-- Cart Items List -->
+        <div class="cart-items-section">
+          <div class="items-header hidden-mobile">
+            <span class="col-product">Product</span>
+            <span class="col-qty">Quantity</span>
+            <span class="col-total">Total</span>
+            <span class="col-action"></span>
+          </div>
+          
+          <div class="items-list">
+            <app-cart-item
+              *ngFor="let item of cartItems$ | async"
+              [item]="item"
+              (quantityChange)="onQuantityChange(item.product.id, $event)"
+              (remove)="onRemoveItem(item.product.id)"
+            ></app-cart-item>
+          </div>
         </div>
 
-        <mat-card class="cart-summary">
-          <mat-card-content>
-            <div class="summary-row">
-              <span>Subtotal:</span>
-              <span class="total">{{ cartTotal$ | async | number: '1.2-2' }} €</span>
-            </div>
-            <div class="summary-actions">
-              <button mat-button (click)="onClearCart()">Clear Cart</button>
-              <button mat-raised-button color="primary" routerLink="/shop/checkout">
-                Proceed to Checkout
-              </button>
-            </div>
-          </mat-card-content>
-        </mat-card>
+        <!-- Order Summary Sidebar -->
+        <div class="cart-sidebar">
+          <mat-card class="summary-card">
+            <mat-card-header>
+              <mat-card-title>Order Summary</mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <app-promo-code-input (applyCode)="onApplyPromo($event)"></app-promo-code-input>
+              
+              <div class="summary-details">
+                <div class="summary-row">
+                  <span>Subtotal</span>
+                  <span>{{ cartTotal$ | async | currency:'USD' }}</span>
+                </div>
+                <div class="summary-row" *ngIf="(discount$ | async)! > 0">
+                  <span class="discount-label">Discount ({{ promoCode$ | async }})</span>
+                  <span class="discount-value">-{{ discount$ | async | currency:'USD' }}</span>
+                </div>
+                <div class="summary-row">
+                  <span>Shipping</span>
+                  <span class="free-shipping">Free</span>
+                </div>
+                
+                <mat-divider></mat-divider>
+                
+                <div class="summary-row total-row">
+                  <span>Total</span>
+                  <span class="total-amount">{{ ((cartTotal$ | async)! - (discount$ | async)!) | currency:'USD' }}</span>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button mat-flat-button color="primary" class="checkout-btn" routerLink="/shop/checkout">
+                  Proceed to Checkout
+                </button>
+                <button mat-stroked-button color="warn" class="clear-btn" (click)="onClearCart()">
+                  Clear Cart
+                </button>
+              </div>
+            </mat-card-content>
+            
+            <mat-card-footer class="security-footer">
+              <mat-icon>lock</mat-icon>
+              <span>Secure Checkout</span>
+            </mat-card-footer>
+          </mat-card>
+        </div>
       </div>
     </div>
   `,
-  styles: [
-    `
-      .cart-page {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: var(--spacing-xl) var(--spacing-md);
-      }
+  styles: [`
+    .cart-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      min-height: 80vh;
+    }
 
-      .cart-page h1 {
-        font-size: var(--font-size-3xl);
-        font-weight: 700;
-        margin: 0 0 var(--spacing-md) 0;
-        color: var(--color-text-primary);
-      }
+    .cart-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
 
-      .empty-cart {
-        text-align: center;
-        padding: var(--spacing-3xl) var(--spacing-md);
-        background: white;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-sm);
-      }
+    .cart-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--mat-sys-on-surface);
+    }
 
-      .empty-cart mat-icon {
-        font-size: 96px;
-        width: 96px;
-        height: 96px;
-        color: var(--color-text-disabled);
-        margin-bottom: var(--spacing-lg);
-      }
+    .item-count {
+      color: var(--mat-sys-secondary);
+      font-size: 1.1rem;
+    }
 
-      .empty-cart p {
-        font-size: var(--font-size-xl);
-        color: var(--color-text-secondary);
-        margin-bottom: var(--spacing-2xl);
-      }
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 0;
+      text-align: center;
+      background: #f8f9fa;
+      border-radius: 16px;
+    }
 
-      .cart-content {
-        display: grid;
+    .empty-icon-container {
+      width: 120px;
+      height: 120px;
+      background: #e3f2fd;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .empty-icon-container mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: var(--mat-sys-primary);
+    }
+
+    .empty-state h2 {
+      font-size: 1.75rem;
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      color: #666;
+      margin-bottom: 32px;
+      font-size: 1.1rem;
+    }
+
+    /* Cart Layout */
+    .cart-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    @media (min-width: 960px) {
+      .cart-layout {
         grid-template-columns: 1fr 380px;
-        gap: var(--spacing-2xl);
-        margin-top: var(--spacing-xl);
       }
+    }
 
-      .cart-items {
-        display: flex;
-        flex-direction: column;
+    /* Items List */
+    .items-header {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      padding: 0 24px 16px;
+      border-bottom: 1px solid #e0e0e0;
+      color: #666;
+      font-weight: 500;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .hidden-mobile {
+        display: none;
       }
+    }
 
-      .cart-summary {
-        height: fit-content;
-        position: sticky;
-        top: calc(64px + var(--spacing-md));
-        background: white;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        padding: var(--spacing-lg);
-      }
+    /* Summary Sidebar */
+    .cart-sidebar {
+      position: sticky;
+      top: 90px;
+      height: fit-content;
+    }
 
-      .summary-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: var(--spacing-md) 0;
-        font-size: var(--font-size-lg);
-        border-bottom: 2px solid var(--color-divider);
-      }
+    .summary-card {
+      border-radius: 16px;
+      overflow: hidden;
+    }
 
-      .summary-row .total {
-        font-weight: 700;
-        font-size: var(--font-size-2xl);
-        color: var(--color-primary);
-      }
+    .summary-details {
+      margin: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
 
-      .summary-actions {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-md);
-        margin-top: var(--spacing-lg);
-      }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      color: #444;
+      font-size: 1rem;
+    }
 
-      .summary-actions button {
-        width: 100%;
-        height: 48px;
-      }
+    .discount-value {
+      color: #2e7d32;
+    }
 
-      @media (max-width: 900px) {
-        .cart-content {
-          grid-template-columns: 1fr;
-          gap: var(--spacing-xl);
-        }
+    .free-shipping {
+      color: #2e7d32;
+      font-weight: 500;
+    }
 
-        .cart-summary {
-          position: static;
-        }
-      }
-    `,
-  ],
+    .total-row {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--mat-sys-on-surface);
+      margin-top: 16px;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .checkout-btn {
+      height: 48px;
+      font-size: 1.1rem;
+    }
+
+    .security-footer {
+      background: #f5f5f5;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    .security-footer mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  `]
 })
 export class CartPageComponent {
   private store = inject(Store);
   cartItems$ = this.store.select(selectCartItems);
   cartTotal$ = this.store.select(selectCartTotal);
+  discount$ = this.store.select(selectDiscount);
+  promoCode$ = this.store.select(selectPromoCode);
 
   onQuantityChange(productId: number, quantity: number) {
     this.store.dispatch(CartActions.updateQuantity({ productId, quantity }));
@@ -175,6 +314,10 @@ export class CartPageComponent {
 
   onClearCart() {
     this.store.dispatch(CartActions.clearCart());
+  }
+
+  onApplyPromo(code: string) {
+    this.store.dispatch(CartActions.applyPromoCode({ code }));
   }
 }
 

@@ -4,6 +4,7 @@ import {
   provideZoneChangeDetection, isDevMode,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { routes } from './app.routes';
 import { provideStore } from '@ngrx/store';
@@ -21,11 +22,18 @@ import { CartEffects } from './state/cart/cart.effects';
 import { ordersReducer } from './state/orders/orders.reducer';
 import { navigationReducer } from './state/navigation/navigation.reducer';
 
+import { wishlistReducer } from './state/wishlist/wishlist.reducer';
+import { WishlistEffects } from './state/wishlist/wishlist.effects';
+import { reviewsReducer } from './state/reviews/reviews.reducer';
+import { ReviewsEffects } from './state/reviews/reviews.effects';
+import { NotificationEffects } from './state/notification.effects';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
+    provideAnimationsAsync(),
     provideHttpClient(withInterceptors([authInterceptor])),
 
     // ⬇️ HERE: register your feature state
@@ -35,8 +43,17 @@ export const appConfig: ApplicationConfig = {
       cart: cartReducer,
       orders: ordersReducer,
       navigation: navigationReducer,
+      wishlist: wishlistReducer,
+      reviews: reviewsReducer,
     }),
-    provideEffects([AuthEffects, ProductsEffects, CartEffects]),
+    provideEffects([
+      AuthEffects, 
+      ProductsEffects, 
+      CartEffects, 
+      WishlistEffects, 
+      ReviewsEffects, 
+      NotificationEffects
+    ]),
 
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],
