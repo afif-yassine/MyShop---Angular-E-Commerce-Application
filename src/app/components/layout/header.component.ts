@@ -8,7 +8,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
 import { Store } from '@ngrx/store';
 import { selectCartCount } from '../../state/cart/cart.selectors';
-import { selectIsLoggedIn } from '../../state/auth/auth.selectors';
+import { selectIsLoggedIn, selectUser } from '../../state/auth/auth.selectors';
 import { selectUniqueCategories } from '../../state/products/products.selectors';
 import * as AuthActions from '../../state/auth/auth.actions';
 
@@ -99,6 +99,10 @@ import * as AuthActions from '../../state/auth/auth.actions';
                 <mat-icon>person</mat-icon>
               </button>
               <mat-menu #userMenu="matMenu" class="premium-menu">
+                <a *ngIf="(user$ | async)?.isAdmin" routerLink="/admin" mat-menu-item>
+                  <mat-icon>admin_panel_settings</mat-icon>
+                  <span>Admin Panel</span>
+                </a>
                 <a routerLink="/account" mat-menu-item>
                   <mat-icon>dashboard</mat-icon>
                   <span>Dashboard</span>
@@ -551,6 +555,7 @@ export class HeaderComponent {
   
   cartCount$ = this.store.select(selectCartCount);
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
+  user$ = this.store.select(selectUser);
   categories$ = this.store.select(selectUniqueCategories);
   
   showShopMenu = false;

@@ -4,6 +4,7 @@ import * as AuthActions from './auth.actions';
 export interface AuthState {
   access: string | null;
   refresh: string | null;
+  user: any | null;
   loading: boolean;
   error: string | null;
 }
@@ -11,6 +12,7 @@ export interface AuthState {
 export const initialState: AuthState = {
   access: null,
   refresh: null,
+  user: null,
   loading: false,
   error: null,
 };
@@ -24,10 +26,11 @@ export const authReducer = createReducer(
     error: null,
   })),
 
-  on(AuthActions.loginSuccess, (state, { access, refresh }) => ({
+  on(AuthActions.loginSuccess, (state, { access, refresh, user }) => ({
     ...state,
     access,
     refresh,
+    user,
     loading: false,
     error: null,
   })),
@@ -45,6 +48,7 @@ export const authReducer = createReducer(
       ...state,
       access: null,
       refresh: null,
+      user: null,
       loading: false,
       error: null,
     };

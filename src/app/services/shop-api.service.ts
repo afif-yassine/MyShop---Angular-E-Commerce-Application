@@ -51,9 +51,11 @@ export interface OrderResponse {
 @Injectable({ providedIn: 'root' })
 export class ShopApiService {
   private productsKey = 'mock_products';
+  private usersKey = 'mock_users';
 
   constructor(private http: HttpClient) {
     this.initProducts();
+    this.initUsers();
   }
 
   private initProducts() {
@@ -67,13 +69,55 @@ export class ShopApiService {
     return stored ? JSON.parse(stored) : products;
   }
 
+  private initUsers() {
+    const demoUser = {
+      id: 1,
+      name: 'Demo Admin',
+      email: 'demo@example.com',
+      password: 'demo123456',
+      isAdmin: true
+    };
+
+    let users = this.getStoredUsers();
+    
+    if (users.length === 0) {
+      users = [demoUser];
+    } else {
+      // Ensure demo user is up to date
+      const index = users.findIndex(u => u.email === 'demo@example.com');
+      if (index !== -1) {
+        users[index] = { ...users[index], ...demoUser };
+      } else {
+        users.push(demoUser);
+      }
+    }
+    
+    localStorage.setItem(this.usersKey, JSON.stringify(users));
+  }
+
+  private getStoredUsers(): any[] {
+    const stored = localStorage.getItem(this.usersKey);
+    return stored ? JSON.parse(stored) : [];
+  }
+
   login(username: string, password: string): Observable<LoginResponse> {
-    // Mock login response
     return new Observable(observer => {
       setTimeout(() => {
-        if (username && password) {
+        const users = this.getStoredUsers();
+        const user = users.find(u => u.email === username && u.password === password);
+
+        if (user) {
+          const tokenPayload = {
+            sub: user.id,
+            name: user.name,
+            email: user.email,
+            isAdmin: user.isAdmin
+          };
+          // Create a fake JWT-like token
+          const access = btoa(JSON.stringify(tokenPayload));
+          
           observer.next({
-            access: 'mock-access-token-' + Math.random().toString(36).substr(2),
+            access: access,
             refresh: 'mock-refresh-token-' + Math.random().toString(36).substr(2)
           });
           observer.complete();
@@ -85,18 +129,39 @@ export class ShopApiService {
   }
 
   register(name: string, email: string, password: string): Observable<LoginResponse> {
-    // Mock register response
     return new Observable(observer => {
       setTimeout(() => {
-        if (name && email && password) {
-          observer.next({
-            access: 'mock-access-token-' + Math.random().toString(36).substr(2),
-            refresh: 'mock-refresh-token-' + Math.random().toString(36).substr(2)
-          });
-          observer.complete();
-        } else {
-          observer.error({ message: 'Registration failed' });
+        const users = this.getStoredUsers();
+        
+        if (users.find(u => u.email === email)) {
+          observer.error({ message: 'Email already exists' });
+          return;
         }
+
+        const newUser = {
+          id: users.length + 1,
+          name,
+          email,
+          password,
+          isAdmin: false // Default to non-admin
+        };
+
+        users.push(newUser);
+        localStorage.setItem(this.usersKey, JSON.stringify(users));
+
+        const tokenPayload = {
+          sub: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          isAdmin: newUser.isAdmin
+        };
+        const access = btoa(JSON.stringify(tokenPayload));
+
+        observer.next({
+          access: access,
+          refresh: 'mock-refresh-token-' + Math.random().toString(36).substr(2)
+        });
+        observer.complete();
       }, 1000);
     });
   }

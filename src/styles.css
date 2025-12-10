@@ -171,3 +171,43 @@ a:hover {
 .mat-mdc-form-field-subscript-wrapper {
   background-color: transparent;
 }
+
+/* Premium Menu Styles */
+.premium-menu {
+  background-color: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+  border: 1px solid rgba(0,0,0,0.05) !important;
+  min-width: 220px !important;
+  overflow: hidden !important;
+}
+
+.premium-menu .mat-mdc-menu-content {
+  padding: 8px !important;
+}
+
+.premium-menu .mat-mdc-menu-item {
+  border-radius: 8px !important;
+  margin-bottom: 2px !important;
+  color: #333 !important;
+  height: 48px !important;
+  line-height: 48px !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.premium-menu .mat-mdc-menu-item:hover {
+  background-color: #f8f9fa !important;
+  color: var(--color-primary) !important;
+  transform: translateX(4px);
+}
+
+.premium-menu .mat-mdc-menu-item .mat-icon {
+  margin-right: 12px !important;
+  color: #666 !important;
+}
+
+.premium-menu .mat-mdc-menu-item:hover .mat-icon {
+  color: var(--color-primary) !important;
+}
