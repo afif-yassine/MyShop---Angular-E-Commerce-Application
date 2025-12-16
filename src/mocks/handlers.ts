@@ -361,10 +361,45 @@ export const handlers = [
     const page_size = Number(url.searchParams.get('page_size') || '10');
     const min_rating = Number(url.searchParams.get('min_rating') || '0');
     const ordering = url.searchParams.get('ordering') || '-created_at';
+    const search = url.searchParams.get('search') || '';
+    const category = url.searchParams.get('category') || '';
+    const minPrice = Number(url.searchParams.get('min_price') || '0');
+    const maxPrice = Number(url.searchParams.get('max_price') || '999999');
 
-    const rows = products
+    // Merge base products with custom products from localStorage
+    let allProducts = [...products];
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const customProductsJson = localStorage.getItem('custom_products');
+        if (customProductsJson) {
+          const customProducts = JSON.parse(customProductsJson);
+          allProducts = [...customProducts, ...allProducts];
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load custom products:', e);
+    }
+
+    let rows = allProducts
       .map((p) => ({ ...p, _avg: avgRating(p.ratings) }))
-      .filter((p) => p._avg >= min_rating);
+      .filter((p) => p._avg >= min_rating)
+      .filter((p) => p.price >= minPrice && p.price <= maxPrice);
+    
+    // Apply search filter
+    if (search) {
+      const searchLower = search.toLowerCase();
+      rows = rows.filter((p) => 
+        p.name.toLowerCase().includes(searchLower) ||
+        p.description.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Apply category filter
+    if (category && category !== 'all') {
+      rows = rows.filter((p) => 
+        p.category.toLowerCase() === category.toLowerCase()
+      );
+    }
 
     const sign = ordering.startsWith('-') ? -1 : 1;
     const key = ordering.replace(/^-/, '');

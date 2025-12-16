@@ -4,6 +4,7 @@
 ![NgRx](https://img.shields.io/badge/NgRx-State_Management-ba2bd2.svg?style=for-the-badge&logo=ngrx&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Material UI](https://img.shields.io/badge/Material_UI-0081CB?style=for-the-badge&logo=material-ui&logoColor=white)
+![Storybook](https://img.shields.io/badge/Storybook-FF4785?style=for-the-badge&logo=storybook&logoColor=white)
 
 **LuxeShop** is a state-of-the-art, premium e-commerce platform built with modern web technologies. It delivers a seamless, high-performance shopping experience with a focus on aesthetic excellence and robust architecture.
 
@@ -20,51 +21,54 @@
 - ✅ **Product Details** - Rich product pages with add to cart
 - ✅ **Storybook** - Basic component stories
 
-### Exercise 3 (Advanced Features) ✨ NEW
+### Exercise 3 (Advanced Features) ✨
 - ✅ **User Account** - Profile management with preferences
 - ✅ **User Preferences** - Newsletter subscription & default min rating filter
-- ✅ **Order History** - Full order list with status tracking
+- ✅ **Order History** - Full order list with status filtering & search
 - ✅ **Order Details** - Complete breakdown (items, taxes, shipping, discounts)
 - ✅ **Wishlist** - Add/remove favorites with heart animation
 - ✅ **Reviews System** - Customer reviews with ratings
 - ✅ **Promo Codes** - WELCOME10, FREESHIP, VIP20 discounts
 - ✅ **Stock Management** - In stock / Low stock / Out of stock display
 - ✅ **Admin Dashboard** - Stats, top products, recent orders
+- ✅ **Product Creation** - Admin can add new products
 - ✅ **Performance Optimizations** - Lazy loading, OnPush, memoized selectors
 
 ---
 
 ## ✨ Key Features
 
-### 🎨 **Premium UI/UX**
-* **Responsive Design:** Fluid layout adapting to mobile, tablet, and desktop
-* **Glassmorphism & Animations:** Micro-interactions and smooth transitions
-* **Sticky Header:** Dynamic header with scroll behavior
-* **Stock Status Badges:** Visual indicators for product availability
+### 🎨 Premium UI/UX
+- **Responsive Design:** Fluid layout adapting to mobile, tablet, and desktop
+- **Glassmorphism & Animations:** Micro-interactions and smooth transitions
+- **Sticky Header:** Dynamic header with scroll behavior
+- **Stock Status Badges:** Visual indicators for product availability
 
-### 🛒 **Shopping Experience**
-* **Product Catalog:** Dynamic filtering and category browsing
-* **Product Details:** Image galleries, stock status, customer reviews
-* **Shopping Cart:** Real-time management with persistent state
-* **Promo Codes:** Apply discount codes at checkout
-* **Checkout Process:** Multi-step flow with price breakdown (subtotal, taxes, shipping, discounts)
-* **Wishlist:** Save favorites with animated heart toggle
+### 🛒 Shopping Experience
+- **Product Catalog:** Dynamic filtering, category browsing, search
+- **Product Details:** Image galleries, stock status, customer reviews
+- **Shopping Cart:** Real-time management with persistent state
+- **Promo Codes:** Apply discount codes at checkout
+- **Checkout Process:** Multi-step flow with price breakdown
+- **Wishlist:** Save favorites with animated heart toggle
 
-### 👤 **User Account**
-* **Profile Management:** Edit name, contact info, default address
-* **Preferences:** Newsletter toggle, default minimum rating filter
-* **Order History:** View all past orders with status
-* **Order Details:** Complete breakdown with items, totals, and shipping info
+### 👤 User Account
+- **Profile Management:** Edit name, contact info, default address
+- **Preferences:** Newsletter toggle, default minimum rating filter
+- **Order History:** View all past orders with status filtering
+- **Order Details:** Complete breakdown with items, totals, and shipping info
 
-### 🔐 **Authentication**
-* **Secure Auth:** JWT-based login/registration (mocked)
-* **Demo Account:** demo@example.com / demo123456 (Admin access)
-* **Protected Routes:** Guard-based route protection
+### 🔐 Authentication
+- **Secure Auth:** JWT-based login/registration (mocked)
+- **Demo Account:** demo@example.com / demo123456 (Admin access)
+- **Protected Routes:** Guard-based route protection
+- **Persistent Sessions:** User data saved to localStorage
 
-### 📊 **Admin Dashboard**
-* **Statistics Cards:** Revenue, orders, users, avg order value
-* **Top Products:** Best-selling items with revenue
-* **Recent Orders:** Latest orders with status tracking
+### 📊 Admin Dashboard
+- **Statistics Cards:** Revenue, orders, users, avg order value
+- **Top Products:** Best-selling items with revenue
+- **Recent Orders:** Latest orders with status tracking
+- **Product Management:** Create new products
 
 ---
 
@@ -73,13 +77,18 @@
 ### Module Structure (Lazy Loaded)
 ```
 src/app/
+├── components/           # Shared components
+│   ├── login-form/
+│   ├── product-card/
+│   └── products-list/
 ├── pages/
 │   ├── account/          # AccountModule (lazy)
 │   │   ├── user-profile/
 │   │   ├── orders/
 │   │   └── wishlist/
 │   ├── admin/            # AdminModule (lazy)
-│   │   └── dashboard/
+│   │   ├── dashboard/
+│   │   └── products/
 │   └── auth/
 ├── shop/                 # ShopModule (lazy)
 │   ├── cart/
@@ -87,13 +96,23 @@ src/app/
 │   ├── product-details/
 │   ├── promotions/
 │   └── wishlist/
-└── state/                # NgRx State
+├── state/                # NgRx State
+│   ├── auth/
+│   ├── products/
+│   ├── cart/
+│   ├── orders/
+│   ├── user/
+│   ├── wishlist/
+│   ├── reviews/
+│   ├── admin/
+│   └── navigation/
+└── mocks/                # MSW Mock API
 ```
 
 ### NgRx State Slices
 | Slice | Purpose |
 |-------|---------|
-| `auth` | Authentication tokens & user session |
+| `auth` | Authentication tokens & user session (persisted) |
 | `products` | Product catalog with caching |
 | `cart` | Shopping cart items, promo codes, discounts |
 | `orders` | Order history with status tracking |
@@ -103,7 +122,7 @@ src/app/
 | `admin` | Admin statistics |
 | `navigation` | UI navigation state |
 
-### Memoized Selectors (Section 6.3)
+### Memoized Selectors
 - `selectCartTotalItems` - Total items in cart
 - `selectWishlistProducts` - All wishlist products
 - `selectWishlistCount` - Wishlist item count
@@ -118,7 +137,7 @@ src/app/
 ### Lazy Loading
 All major feature modules are lazy loaded:
 - `/shop/*` → ShopModule
-- `/account/*` → AccountModule
+- `/account/*` → AccountModule  
 - `/admin/*` → AdminModule
 
 ### Change Detection
@@ -126,32 +145,28 @@ All major feature modules are lazy loaded:
 - Improves performance by reducing unnecessary change detection cycles
 
 ### trackBy Functions
-All `*ngFor` directives use `trackBy` for efficient DOM updates:
-- Product lists, order lists, review lists, cart items
+All `*ngFor` directives use `trackBy` for efficient DOM updates
 
-### Stale-While-Revalidate Cache
-Product list caching with background refresh:
-- Immediate display of cached data
-- Background API call for updates
-- State updated only if data changed
-- Tracked via `lastQueryParams` in products state
+### Data Persistence
+- Auth state persisted to localStorage (tokens + user data)
+- Cart items persisted to localStorage
+- Orders persisted to localStorage
+- Custom products persisted to localStorage
 
 ---
 
 ## 🎯 Technical Decisions
 
 ### Wishlist Storage
-**Decision:** Dedicated `wishlist` NgRx slice (not part of `user` slice)
+**Decision:** Dedicated `wishlist` NgRx slice
 
 **Rationale:**
-- Separation of concerns - wishlist changes frequently
+- Separation of concerns
 - Simpler reducer logic
 - Independent loading/error states
-- Easier to test in isolation
 - Matches cart pattern for consistency
 
 ### Promo Code System
-**Implemented Codes:**
 | Code | Effect | Condition |
 |------|--------|-----------|
 | WELCOME10 | 10% off items | None |
@@ -169,11 +184,20 @@ Product list caching with background refresh:
 
 ## 🧩 MSW Endpoints
 
+### Authentication
+- `POST /api/auth/token/` - Login
+- `POST /api/auth/token/refresh/` - Refresh token
+
 ### User & Profile
 - `GET /api/me/` - User profile
 - `PATCH /api/me/` - Update profile/preferences
 - `GET /api/me/orders/` - User's orders
 - `GET /api/orders/:id/` - Order details
+
+### Products
+- `GET /api/products/` - Product list (with filters)
+- `GET /api/products/:id/` - Product details
+- `GET /api/products/:id/rating/` - Product rating
 
 ### Wishlist
 - `GET /api/me/wishlist/` - Get wishlist IDs
@@ -196,75 +220,113 @@ Product list caching with background refresh:
 
 ## 🛠️ Tech Stack
 
-* **Framework:** [Angular 18+](https://angular.io/)
-* **State Management:** [NgRx](https://ngrx.io/) (Redux pattern)
-* **Styling:** 
-    * [Tailwind CSS](https://tailwindcss.com/)
-    * [Angular Material](https://material.angular.io/)
-    * Custom CSS Variables
-* **Mock API:** [MSW](https://mswjs.io/) (Mock Service Worker)
-* **Component Library:** [Storybook](https://storybook.js.org/)
-* **Icons:** Material Icons & SVG
+| Category | Technology |
+|----------|------------|
+| **Framework** | Angular 18+ |
+| **State Management** | NgRx (Redux pattern) |
+| **Styling** | Tailwind CSS, Angular Material, Custom CSS |
+| **Mock API** | MSW (Mock Service Worker) |
+| **Component Library** | Storybook |
+| **Icons** | Material Icons & SVG |
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-* Node.js (v18 or higher)
-* npm (v9 or higher)
+- Node.js (v18 or higher)
+- npm (v9 or higher)
 
 ### Installation
 
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/yourusername/luxeshop.git
-    cd luxeshop
-    ```
+```bash
+# Clone the repository
+git clone https://github.com/afif-yassine/MyShop---Angular-E-Commerce-Application.git
+cd MyShop---Angular-E-Commerce-Application
 
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
+# Install dependencies
+npm install
 
-3.  **Start the development server**
-    ```bash
-    npm start
-    ```
+# Start the development server
+npm start
+```
 
-4.  **Open in browser**
-    Navigate to `http://localhost:4200/`
+Open `http://localhost:4200/` in your browser.
 
 ### Running Storybook
 ```bash
 npm run storybook
 ```
+Open `http://localhost:6006/` in your browser.
 
 ### Demo Account
-- **Email:** demo@example.com
-- **Password:** demo123456
-- **Access:** Admin privileges
+| Field | Value |
+|-------|-------|
+| **Email** | demo@example.com |
+| **Password** | demo123456 |
+| **Access** | Admin privileges |
 
 ---
 
-## 📚 Storybook Stories
+## 📚 Storybook Stories (14 Total)
 
-### Existing Stories
-- `ProductCard` - Product display with variants
-- `LoginForm` - Authentication form
-- `CartItem` - Cart item display
-- `CartSummary` - Cart total summary
-- `UserProfilePage` - Profile editing
-- `AdminStatsCard` - Dashboard stat cards
-- `ProductReviewsSection` - Reviews display
-- `PromoSummary` - Price breakdown
-- `WishlistButton` - Wishlist toggle
+### Shop Components
+| Story | Description |
+|-------|-------------|
+| `ProductCard` | Product display with stock states (InStock, LowStock, OutOfStock) |
+| `ProductsList` | Product grid with loading/error states |
+| `CartItem` | Cart item with quantity controls |
+| `CartSummary` | Cart total summary |
+| `WishlistButton` | Heart toggle button |
+| `PromoSummary` | Price breakdown with discounts |
+| `ProductReviewsSection` | Customer reviews list |
+| `ProductDetails` | Full product page |
+| `LoginForm` | Authentication form |
+
+### Account Pages
+| Story | Description |
+|-------|-------------|
+| `UserProfilePage` | Profile editing with preferences |
+| `OrdersListPage` | Orders with filtering & search |
+| `OrderDetailsPage` | Full order breakdown |
+
+### Admin Components
+| Story | Description |
+|-------|-------------|
+| `AdminDashboard` | Full dashboard with stats |
+| `AdminStatsCard` | Individual stat cards |
 
 ---
 
-## 📄 License
+## 📁 Project Structure
 
-This project is not licensed.
+```
+├── src/
+│   ├── app/
+│   │   ├── components/       # Shared UI components
+│   │   ├── guards/           # Route guards
+│   │   ├── pages/            # Feature pages
+│   │   ├── services/         # API services
+│   │   ├── shop/             # Shop module
+│   │   └── state/            # NgRx state management
+│   ├── mocks/                # MSW handlers & data
+│   └── styles.css            # Global styles
+├── .storybook/               # Storybook configuration
+├── angular.json              # Angular configuration
+└── package.json
+```
+
+---
+
+## 🧪 Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm start` | Start dev server (port 4200) |
+| `npm run build` | Production build |
+| `npm run storybook` | Start Storybook (port 6006) |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run unit tests |
 
 ---
 
