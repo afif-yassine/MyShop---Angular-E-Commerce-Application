@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { RouterModule } from '@angular/router';
@@ -6,7 +6,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Store } from '@ngrx/store';
 import { AdminStatsCardComponent } from './admin-stats-card.component';
+import { loadAdminStats } from '../../../state/admin/admin.actions';
+import { 
+  selectAdminStats, 
+  selectAdminLoading, 
+  selectAdminError,
+  selectTopProducts,
+  selectRecentOrders
+} from '../../../state/admin/admin.selectors';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -19,6 +29,7 @@ import { AdminStatsCardComponent } from './admin-stats-card.component';
     MatButtonModule,
     MatChipsModule,
     RouterModule,
+    MatProgressSpinnerModule,
     AdminStatsCardComponent
   ],
   template: `
@@ -39,83 +50,136 @@ import { AdminStatsCardComponent } from './admin-stats-card.component';
           </button>
         </div>
       </div>
-      
-      <div class="stats-grid">
-        <app-admin-stats-card
-          title="Total Revenue"
-          value="€12,345.00"
-          icon="attach_money"
-          color="primary"
-          [trend]="15">
-        </app-admin-stats-card>
 
-        <app-admin-stats-card
-          title="Total Orders"
-          value="156"
-          icon="shopping_cart"
-          color="accent"
-          [trend]="8">
-        </app-admin-stats-card>
-
-        <app-admin-stats-card
-          title="Active Users"
-          value="1,234"
-          icon="people"
-          color="warn"
-          [trend]="-2">
-        </app-admin-stats-card>
-
-        <app-admin-stats-card
-          title="Avg. Order Value"
-          value="€79.13"
-          icon="analytics"
-          color="primary"
-          [trend]="5">
-        </app-admin-stats-card>
-      </div>
-
-      <div class="recent-orders">
-        <div class="section-header">
-          <h2>Recent Orders</h2>
-          <button mat-button color="primary">View All</button>
+      <ng-container *ngIf="loading$ | async; else statsContent">
+        <div class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading statistics...</p>
         </div>
-        
-        <mat-card class="table-card">
-          <table mat-table [dataSource]="recentOrders" class="full-width">
-            <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef> Order ID </th>
-              <td mat-cell *matCellDef="let order" class="order-id"> {{order.id}} </td>
-            </ng-container>
-            
-            <ng-container matColumnDef="customer">
-              <th mat-header-cell *matHeaderCellDef> Customer </th>
-              <td mat-cell *matCellDef="let order"> 
-                <div class="customer-cell">
-                  <div class="customer-avatar">{{order.customer.charAt(0)}}</div>
-                  <span>{{order.customer}}</span>
-                </div>
-              </td>
-            </ng-container>
-            
-            <ng-container matColumnDef="total">
-              <th mat-header-cell *matHeaderCellDef> Total </th>
-              <td mat-cell *matCellDef="let order" class="order-total"> {{order.total | currency:'EUR'}} </td>
-            </ng-container>
-            
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef> Status </th>
-              <td mat-cell *matCellDef="let order">
-                <mat-chip [color]="getStatusColor(order.status)" selected>
-                  {{order.status}}
-                </mat-chip>
-              </td>
-            </ng-container>
-            
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="order-row"></tr>
-          </table>
-        </mat-card>
-      </div>
+      </ng-container>
+
+      <ng-template #statsContent>
+        <div class="stats-grid" *ngIf="stats$ | async as stats">
+          <app-admin-stats-card
+            title="Total Revenue"
+            [value]="formatCurrency(stats.totalRevenue)"
+            icon="attach_money"
+            color="primary"
+            [trend]="15">
+          </app-admin-stats-card>
+
+          <app-admin-stats-card
+            title="Total Orders"
+            [value]="stats.totalOrders.toString()"
+            icon="shopping_cart"
+            color="accent"
+            [trend]="8">
+          </app-admin-stats-card>
+
+          <app-admin-stats-card
+            title="Active Users"
+            [value]="stats.totalUsers.toString()"
+            icon="people"
+            color="warn"
+            [trend]="-2">
+          </app-admin-stats-card>
+
+          <app-admin-stats-card
+            title="Avg. Order Value"
+            [value]="formatCurrency(stats.totalOrders > 0 ? stats.totalRevenue / stats.totalOrders : 0)"
+            icon="analytics"
+            color="primary"
+            [trend]="5">
+          </app-admin-stats-card>
+        </div>
+
+        <!-- Top Products -->
+        <div class="top-products" *ngIf="topProducts$ | async as topProducts">
+          <div class="section-header">
+            <h2>Top Selling Products</h2>
+          </div>
+          
+          <mat-card class="table-card" *ngIf="topProducts.length > 0; else noProducts">
+            <table mat-table [dataSource]="topProducts" class="full-width">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Product</th>
+                <td mat-cell *matCellDef="let product">{{ product.name }}</td>
+              </ng-container>
+              
+              <ng-container matColumnDef="sold">
+                <th mat-header-cell *matHeaderCellDef>Units Sold</th>
+                <td mat-cell *matCellDef="let product" class="text-center">{{ product.sold }}</td>
+              </ng-container>
+              
+              <ng-container matColumnDef="revenue">
+                <th mat-header-cell *matHeaderCellDef>Revenue</th>
+                <td mat-cell *matCellDef="let product" class="revenue">
+                  {{ product.revenue | currency:'EUR' }}
+                </td>
+              </ng-container>
+              
+              <tr mat-header-row *matHeaderRowDef="productColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: productColumns;"></tr>
+            </table>
+          </mat-card>
+
+          <ng-template #noProducts>
+            <mat-card class="empty-card">
+              <p>No product sales data available yet.</p>
+            </mat-card>
+          </ng-template>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="recent-orders" *ngIf="recentOrders$ | async as recentOrders">
+          <div class="section-header">
+            <h2>Recent Orders</h2>
+            <button mat-button color="primary" routerLink="/account/orders">View All</button>
+          </div>
+          
+          <mat-card class="table-card" *ngIf="recentOrders.length > 0; else noOrders">
+            <table mat-table [dataSource]="recentOrders" class="full-width">
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>Order ID</th>
+                <td mat-cell *matCellDef="let order" class="order-id">{{ order.id }}</td>
+              </ng-container>
+              
+              <ng-container matColumnDef="user">
+                <th mat-header-cell *matHeaderCellDef>Customer</th>
+                <td mat-cell *matCellDef="let order">
+                  <div class="customer-cell">
+                    <div class="customer-avatar">{{ (order.user || 'G').charAt(0).toUpperCase() }}</div>
+                    <span>{{ order.user || 'Guest' }}</span>
+                  </div>
+                </td>
+              </ng-container>
+              
+              <ng-container matColumnDef="total">
+                <th mat-header-cell *matHeaderCellDef>Total</th>
+                <td mat-cell *matCellDef="let order" class="order-total">{{ order.total | currency:'EUR' }}</td>
+              </ng-container>
+              
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let order">
+                  <mat-chip [color]="getStatusColor(order.status)" selected>
+                    {{ order.status }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+              
+              <tr mat-header-row *matHeaderRowDef="orderColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: orderColumns;" class="order-row"></tr>
+            </table>
+          </mat-card>
+
+          <ng-template #noOrders>
+            <mat-card class="empty-card">
+              <p>No orders have been placed yet.</p>
+            </mat-card>
+          </ng-template>
+        </div>
+      </ng-template>
     </div>
   `,
   styles: [`
@@ -130,6 +194,8 @@ import { AdminStatsCardComponent } from './admin-stats-card.component';
       justify-content: space-between;
       align-items: flex-end;
       margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
 
     h1 {
@@ -156,6 +222,15 @@ import { AdminStatsCardComponent } from './admin-stats-card.component';
       height: 48px;
     }
 
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 64px;
+      color: #666;
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -176,10 +251,17 @@ import { AdminStatsCardComponent } from './admin-stats-card.component';
       margin: 0;
     }
 
-    .table-card {
+    .table-card, .empty-card {
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.05);
       overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .empty-card {
+      padding: 48px;
+      text-align: center;
+      color: #666;
     }
 
     .full-width { width: 100%; }
@@ -226,32 +308,61 @@ import { AdminStatsCardComponent } from './admin-stats-card.component';
       font-size: 0.8rem;
     }
 
-    .order-total {
+    .order-total, .revenue {
       font-weight: 600;
+    }
+
+    .text-center {
+      text-align: center;
     }
 
     .order-row:hover {
       background: #fcfcfc;
     }
+
+    .top-products {
+      margin-bottom: 32px;
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdminDashboardComponent {
-  displayedColumns = ['id', 'customer', 'total', 'status'];
-  recentOrders = [
-    { id: '#ORD-001', customer: 'John Doe', total: 120.50, status: 'Completed' },
-    { id: '#ORD-002', customer: 'Jane Smith', total: 85.00, status: 'Processing' },
-    { id: '#ORD-003', customer: 'Bob Johnson', total: 250.00, status: 'Shipped' },
-    { id: '#ORD-004', customer: 'Alice Brown', total: 320.00, status: 'Completed' },
-    { id: '#ORD-005', customer: 'Charlie Wilson', total: 55.00, status: 'Processing' },
-  ];
+export class AdminDashboardComponent implements OnInit {
+  private store = inject(Store);
+  
+  stats$ = this.store.select(selectAdminStats);
+  loading$ = this.store.select(selectAdminLoading);
+  error$ = this.store.select(selectAdminError);
+  topProducts$ = this.store.select(selectTopProducts);
+  recentOrders$ = this.store.select(selectRecentOrders);
+  
+  orderColumns = ['id', 'user', 'total', 'status'];
+  productColumns = ['name', 'sold', 'revenue'];
+
+  ngOnInit() {
+    this.store.dispatch(loadAdminStats());
+  }
+
+  formatCurrency(value: number): string {
+    return new Intl.NumberFormat('en-US', { 
+      style: 'currency', 
+      currency: 'EUR' 
+    }).format(value);
+  }
 
   getStatusColor(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'completed': return 'accent';
+    switch (status?.toLowerCase()) {
+      case 'delivered': return 'accent';
       case 'shipped': return 'primary';
       case 'processing': return 'warn';
       default: return '';
     }
+  }
+
+  trackByProduct(index: number, product: any): string {
+    return product.productId;
+  }
+
+  trackByOrder(index: number, order: any): string {
+    return order.id;
   }
 }

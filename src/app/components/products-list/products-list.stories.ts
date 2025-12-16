@@ -14,6 +14,7 @@ const sampleProducts: Product[] = [
     ratings: [{ user_id: 2, value: 4 }],
     rating: 4,
     stock: 10,
+    lowStockThreshold: 5,
     image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?auto=format&fit=crop&w=800&q=80',
     features: ['Feature 1']
   },
@@ -28,6 +29,7 @@ const sampleProducts: Product[] = [
     ratings: [{ user_id: 3, value: 5 }],
     rating: 5,
     stock: 10,
+    lowStockThreshold: 5,
     image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
     features: ['Feature 1']
   },
@@ -42,6 +44,7 @@ const sampleProducts: Product[] = [
     ratings: [{ user_id: 4, value: 3 }],
     rating: 3,
     stock: 10,
+    lowStockThreshold: 5,
     image: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800&q=80',
     features: ['Feature 1']
   },
@@ -56,6 +59,7 @@ const sampleProducts: Product[] = [
     ratings: [{ user_id: 2, value: 5 }],
     rating: 5,
     stock: 10,
+    lowStockThreshold: 5,
     image: 'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=800&q=80',
     features: ['Feature 1']
   },
@@ -70,6 +74,7 @@ const sampleProducts: Product[] = [
     ratings: [{ user_id: 1, value: 4 }],
     rating: 4,
     stock: 10,
+    lowStockThreshold: 5,
     image: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=800&q=80',
     features: ['Feature 1']
   },
@@ -140,4 +145,3 @@ export const SingleProduct: Story = {
     error: null,
   },
 };
-

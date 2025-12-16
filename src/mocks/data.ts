@@ -9,6 +9,7 @@ export interface Product {
   ratings: { user_id: number; value: number }[];
   rating: number;
   stock: number;
+  lowStockThreshold: number;
   image: string;
   features: string[];
 }
@@ -25,6 +26,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 2, value: 4 }],
     rating: 4,
     stock: 100,
+    lowStockThreshold: 10,
     image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?auto=format&fit=crop&w=800&q=80',
     features: ['Smooth ink flow', 'Ergonomic grip', 'Long-lasting', 'Quick drying']
   },
@@ -39,6 +41,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 3, value: 5 }],
     rating: 5,
     stock: 50,
+    lowStockThreshold: 10,
     image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
     features: ['100gsm paper', 'Hardcover', 'Elastic closure', 'Ribbon bookmark']
   },
@@ -53,6 +56,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 4, value: 3 }],
     rating: 3,
     stock: 20,
+    lowStockThreshold: 5,
     image: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800&q=80',
     features: ['2-ring mechanism', 'Spine label', 'A4 compatible', 'Water-resistant cover']
   },
@@ -67,6 +71,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 2, value: 5 }],
     rating: 5,
     stock: 200,
+    lowStockThreshold: 20,
     image: 'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=800&q=80',
     features: ['Break-resistant lead', 'Easy to sharpen', 'Non-toxic', 'Smooth graphite']
   },
@@ -81,6 +86,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 1, value: 4 }],
     rating: 4,
     stock: 15,
+    lowStockThreshold: 5,
     image: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=800&q=80',
     features: ['Shatterproof', 'Metric & Imperial', 'Beveled edge', 'Transparent']
   },
@@ -95,6 +101,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 3, value: 4 }],
     rating: 4,
     stock: 0,
+    lowStockThreshold: 10,
     image: 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=800&q=80',
     features: ['Dust-free', 'Latex-free', 'Minimal crumbling', 'Protective sleeve']
   },
@@ -109,6 +116,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 6, value: 5 }],
     rating: 5,
     stock: 80,
+    lowStockThreshold: 15,
     image: 'https://images.unsplash.com/photo-1595186938957-c9388206f6eb?auto=format&fit=crop&w=800&q=80',
     features: ['Super bright ink', 'Chisel tip', 'Smear guard', 'Long cap-off time']
   },
@@ -123,6 +131,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 3, value: 3 }],
     rating: 3,
     stock: 500,
+    lowStockThreshold: 50,
     image: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800&q=80',
     features: ['Clear visibility', 'Tear-resistant', 'Top opening', 'Acid-free']
   },
@@ -137,6 +146,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 5, value: 4 }],
     rating: 4,
     stock: 60,
+    lowStockThreshold: 10,
     image: 'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=800&q=80',
     features: ['Permanent ink', 'Fine tip', 'Waterproof', 'Quick drying']
   },
@@ -151,6 +161,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 7, value: 5 }],
     rating: 5,
     stock: 40,
+    lowStockThreshold: 10,
     image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
     features: ['Top spiral binding', '80 sheets', 'College ruled', 'Sturdy backboard']
   },
@@ -165,6 +176,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 2, value: 4 }],
     rating: 4,
     stock: 100,
+    lowStockThreshold: 20,
     image: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800&q=80',
     features: ['Jam-free', 'High opacity', 'Sustainable source', 'Multipurpose']
   },
@@ -179,6 +191,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 8, value: 5 }],
     rating: 5,
     stock: 25,
+    lowStockThreshold: 5,
     image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?auto=format&fit=crop&w=800&q=80',
     features: ['Durable fabric', 'Zipper closure', 'Washable', 'Compact design']
   },
@@ -193,6 +206,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 9, value: 3 }],
     rating: 3,
     stock: 75,
+    lowStockThreshold: 15,
     image: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=800&q=80',
     features: ['Solvent-free', 'Washable', 'Smooth application', 'Non-toxic']
   },
@@ -207,6 +221,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 1, value: 4 }],
     rating: 4,
     stock: 90,
+    lowStockThreshold: 15,
     image: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800&q=80',
     features: ['Crystal clear', 'Easy tear', 'Strong hold', 'Yellowing resistant']
   },
@@ -221,6 +236,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 3, value: 5 }],
     rating: 5,
     stock: 100,
+    lowStockThreshold: 15,
     image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?auto=format&fit=crop&w=800&q=80',
     features: ['Vivid red ink', 'Comfort grip', 'Retractable', 'No smudging']
   },
@@ -235,6 +251,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 6, value: 4 }],
     rating: 4,
     stock: 30,
+    lowStockThreshold: 5,
     image: 'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=800&q=80',
     features: ['10 colors', 'Washable ink', 'Ventilated cap', 'Medium tip']
   },
@@ -249,6 +266,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 5, value: 3 }],
     rating: 3,
     stock: 45,
+    lowStockThreshold: 10,
     image: 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=800&q=80',
     features: ['Synthetic bristles', 'Fine point', 'Ergonomic handle', 'Easy to clean']
   },
@@ -263,6 +281,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 8, value: 5 }],
     rating: 5,
     stock: 10,
+    lowStockThreshold: 3,
     image: 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=800&q=80',
     features: ['12 colors', 'Mixing tray', 'Includes brush', 'High pigment']
   },
@@ -277,6 +296,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 2, value: 4 }],
     rating: 4,
     stock: 55,
+    lowStockThreshold: 10,
     image: 'https://images.unsplash.com/photo-1595186938957-c9388206f6eb?auto=format&fit=crop&w=800&q=80',
     features: ['Low odor', 'Dry erase', 'Bullet tip', 'Refillable']
   },
@@ -291,6 +311,7 @@ export const products: Product[] = [
     ratings: [{ user_id: 9, value: 4 }],
     rating: 4,
     stock: 20,
+    lowStockThreshold: 5,
     image: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800&q=80',
     features: ['Self-inking', 'Adjustable date', 'Black ink', 'Durable casing']
   },

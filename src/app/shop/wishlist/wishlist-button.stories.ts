@@ -33,6 +33,7 @@ export const Default: Story = {
       ratings: [{ user_id: 1, value: 4.5 }],
       rating: 4.5,
       stock: 10,
+      lowStockThreshold: 5,
       image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?auto=format&fit=crop&w=800&q=80',
       features: ['Feature 1', 'Feature 2']
     },

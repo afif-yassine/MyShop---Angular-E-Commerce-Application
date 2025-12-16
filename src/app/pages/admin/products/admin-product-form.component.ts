@@ -223,18 +223,29 @@ export class AdminProductFormComponent {
         category: formValue.category,
         price: formValue.price,
         stock: formValue.stock,
+        lowStockThreshold: 10, // Default threshold
         description: formValue.description,
         image: formValue.image,
-        features: formValue.features as string[],
+        features: (formValue.features || []).filter((f: string | null) => f && f.trim()) as string[],
         rating: 0,
         ratings: [],
         created_at: new Date().toISOString(),
         owner_id: 1 // Admin
       };
 
-      // Dispatch action (we need to inject Store first)
+      // Dispatch action to add to state
       this.store.dispatch(addProduct({ product: newProduct }));
-      this.router.navigate(['/admin']);
+      
+      // Also persist to localStorage so it survives page refresh
+      try {
+        const existingProducts = JSON.parse(localStorage.getItem('custom_products') || '[]');
+        existingProducts.push(newProduct);
+        localStorage.setItem('custom_products', JSON.stringify(existingProducts));
+      } catch (e) {
+        console.error('Failed to save product to localStorage:', e);
+      }
+      
+      this.router.navigate(['/shop/products']);
     }
   }
 }
