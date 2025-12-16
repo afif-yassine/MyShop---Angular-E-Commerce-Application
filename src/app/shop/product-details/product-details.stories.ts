@@ -1,26 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { ProductDetailsPageComponent } from './product-details-page.component';
+import { applicationConfig } from '@storybook/angular';
 import { provideStore } from '@ngrx/store';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { ProductDetailsPageComponent } from './product-details-page.component';
 import { cartReducer } from '../../state/cart/cart.reducer';
-import { Product } from '../../../mocks/data';
-
-const sampleProduct: Product = {
-  id: 1,
-  name: 'Stylo Bleu',
-  description: 'High quality blue pen',
-  category: 'Stationery',
-  price: 2.5,
-  created_at: '2025-01-10T10:00:00Z',
-  owner_id: 10,
-  ratings: [{ user_id: 2, value: 4 }],
-  rating: 4,
-  stock: 10,
-  lowStockThreshold: 5,
-  image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?auto=format&fit=crop&w=800&q=80',
-  features: ['Feature 1', 'Feature 2']
-};
+import { wishlistReducer } from '../../state/wishlist/wishlist.reducer';
+import { productsReducer } from '../../state/products/products.reducer';
+import { reviewsReducer } from '../../state/reviews/reviews.reducer';
 
 const meta: Meta<ProductDetailsPageComponent> = {
   title: 'Shop/ProductDetails',
@@ -30,12 +18,19 @@ const meta: Meta<ProductDetailsPageComponent> = {
     layout: 'fullscreen',
   },
   decorators: [
-    (story) => ({
-      ...story(),
+    applicationConfig({
       providers: [
-        provideStore({ cart: cartReducer }),
-        provideRouter([]),
+        provideStore({ 
+          cart: cartReducer, 
+          wishlist: wishlistReducer,
+          products: productsReducer,
+          reviews: reviewsReducer
+        }),
+        provideRouter([
+          { path: '**', component: ProductDetailsPageComponent }
+        ]),
         provideHttpClient(),
+        provideAnimations()
       ],
     }),
   ],
@@ -45,30 +40,31 @@ export default meta;
 type Story = StoryObj<ProductDetailsPageComponent>;
 
 export const Default: Story = {
-  args: {},
   parameters: {
-    // Mock the route params and API response
-    msw: {
-      handlers: [],
+    docs: {
+      description: {
+        story: 'Product details page showing product info, images, stock status, and reviews.',
+      },
     },
   },
 };
 
 export const HighRating: Story = {
-  args: {},
   parameters: {
-    msw: {
-      handlers: [],
+    docs: {
+      description: {
+        story: 'Product with high customer rating.',
+      },
     },
   },
 };
 
 export const ExpensiveProduct: Story = {
-  args: {},
   parameters: {
-    msw: {
-      handlers: [],
+    docs: {
+      description: {
+        story: 'Premium priced product.',
+      },
     },
   },
 };
-

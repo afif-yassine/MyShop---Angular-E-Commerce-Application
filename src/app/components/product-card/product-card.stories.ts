@@ -1,8 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { applicationConfig } from '@storybook/angular';
 import { provideStore } from '@ngrx/store';
+import { provideRouter } from '@angular/router';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { ProductCardComponent } from './product-card.component';
 import { wishlistReducer } from '../../state/wishlist/wishlist.reducer';
+import { cartReducer } from '../../state/cart/cart.reducer';
 
 const meta: Meta<ProductCardComponent> = {
   title: 'Shop/ProductCard',
@@ -14,7 +17,9 @@ const meta: Meta<ProductCardComponent> = {
   decorators: [
     applicationConfig({
       providers: [
-        provideStore({ wishlist: wishlistReducer })
+        provideStore({ wishlist: wishlistReducer, cart: cartReducer }),
+        provideRouter([]),
+        provideAnimations()
       ],
     }),
   ],
