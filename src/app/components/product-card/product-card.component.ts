@@ -135,6 +135,16 @@ import { Product } from '../../../mocks/data';
       opacity: 0;
       transition: opacity 0.3s ease;
     }
+    .actions-overlay button {
+      background-color: #e53935 !important;
+      color: white !important;
+    }
+    .actions-overlay button mat-icon {
+      color: white !important;
+    }
+    .actions-overlay button:disabled {
+      background-color: #999 !important;
+    }
     .product-card:hover .actions-overlay {
       opacity: 1;
     }
@@ -146,13 +156,13 @@ import { Product } from '../../../mocks/data';
         <img [src]="'https://picsum.photos/seed/' + id + '/400/400'" [alt]="name" class="product-image">
         
         <div class="actions-overlay" (click)="$event.stopPropagation()">
-          <button mat-mini-fab color="accent" matTooltip="Add to Cart" 
+          <button mat-mini-fab color="warn" matTooltip="Add to Cart" 
                   (click)="onAddToCart($event)"
                   [disabled]="stock === 0"
                   [attr.aria-label]="stock === 0 ? 'Out of stock' : 'Add to cart'">
             <mat-icon>{{ stock === 0 ? 'remove_shopping_cart' : 'add_shopping_cart' }}</mat-icon>
           </button>
-          <button mat-mini-fab [color]="(isWishlisted$ | async) ? 'warn' : ''" 
+          <button mat-mini-fab color="warn" 
                   matTooltip="Add to Wishlist" 
                   (click)="toggleWishlist($event)"
                   [attr.aria-label]="(isWishlisted$ | async) ? 'Remove from wishlist' : 'Add to wishlist'">

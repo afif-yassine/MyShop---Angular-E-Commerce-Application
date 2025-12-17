@@ -126,7 +126,7 @@ import * as AuthActions from '../../state/auth/auth.actions';
             </ng-template>
 
             <a routerLink="/shop/wishlist" mat-icon-button class="action-btn wishlist-btn">
-              <mat-icon>favorite_border</mat-icon>
+              <mat-icon color="warn">favorite</mat-icon>
             </a>
 
             <a routerLink="/shop/cart" mat-icon-button class="action-btn cart-btn">
