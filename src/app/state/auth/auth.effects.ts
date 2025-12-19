@@ -4,12 +4,15 @@ import { Router } from '@angular/router';
 import { catchError, map, switchMap, of, tap } from 'rxjs';
 import * as AuthActions from './auth.actions';
 import { ShopApiService } from '../../services/shop-api.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Injectable()
 export class AuthEffects {
   // ✅ inject() works safely with class field initializers
   private actions$ = inject(Actions);
   private api = inject(ShopApiService);
+  private router = inject(Router);
+  private notifications = inject(NotificationService);
 
   // Effect: login
   login$ = createEffect(() =>
@@ -88,6 +91,18 @@ export class AuthEffects {
     )
   );
 
+  // ✅ Scenario 1: Show notification on login failure
+  showLoginFailureNotification$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.loginFailure, AuthActions.loginWithGoogleFailure),
+        tap(({ error }) => {
+          this.notifications.error(`Échec de connexion: ${error}`);
+        })
+      ),
+    { dispatch: false }
+  );
+
   redirectAfterLogin$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -106,6 +121,4 @@ export class AuthEffects {
       ),
     { dispatch: false }
   );
-
-  private router = inject(Router);
 }

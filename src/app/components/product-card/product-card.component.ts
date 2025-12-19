@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Store } from '@ngrx/store';
 import { selectIsWishlisted } from '../../state/wishlist/wishlist.selectors';
 import { toggleWishlist } from '../../state/wishlist/wishlist.actions';
+import * as CartActions from '../../state/cart/cart.actions';
 import { Product } from '../../../mocks/data';
 
 @Component({
@@ -221,7 +222,24 @@ export class ProductCardComponent {
   onAddToCart(event: Event) {
     event.stopPropagation();
     if (this.stock > 0) {
-      this.addToCart.emit();
+      // Create a product object and dispatch addItem action directly
+      const product: Product = {
+        id: this.id,
+        name: this.name,
+        price: this.price,
+        created_at: this.created_at,
+        owner_id: 0,
+        ratings: [],
+        stock: this.stock,
+        lowStockThreshold: this.lowStockThreshold,
+        description: this.description,
+        category: this.category,
+        rating: this.rating,
+        image: this.image,
+        features: []
+      };
+      this.store.dispatch(CartActions.addItem({ product, quantity: 1 }));
+      this.addToCart.emit(); // Still emit for any parent that might listen
     }
   }
 

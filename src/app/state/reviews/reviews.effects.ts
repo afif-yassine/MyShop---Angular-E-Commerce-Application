@@ -1,16 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { Action } from '@ngrx/store';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { map, mergeMap, catchError } from 'rxjs/operators';
+import { map, mergeMap, catchError, tap } from 'rxjs/operators';
 import * as ReviewsActions from './reviews.actions';
 import { ShopApiService } from '../../services/shop-api.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Injectable()
 export class ReviewsEffects {
   private actions$ = inject(Actions);
-
   private api = inject(ShopApiService);
+  private notifications = inject(NotificationService);
 
   // Load reviews from API
   loadReviews$ = createEffect(() => this.actions$.pipe(
@@ -42,4 +42,26 @@ export class ReviewsEffects {
       )
     )
   ));
+
+  // ✅ Scenario 5: Show notification on review success
+  showReviewSuccessNotification$ = createEffect(
+    () => this.actions$.pipe(
+      ofType(ReviewsActions.addReviewSuccess),
+      tap(() => {
+        this.notifications.success('Avis ajouté avec succès !');
+      })
+    ),
+    { dispatch: false }
+  );
+
+  // ✅ Scenario 5: Show notification on review failure
+  showReviewFailureNotification$ = createEffect(
+    () => this.actions$.pipe(
+      ofType(ReviewsActions.addReviewFailure),
+      tap(({ error }) => {
+        this.notifications.error(`Échec de l'ajout de l'avis: ${error}`);
+      })
+    ),
+    { dispatch: false }
+  );
 }

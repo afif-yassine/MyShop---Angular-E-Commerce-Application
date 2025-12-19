@@ -327,6 +327,55 @@ Open `http://localhost:6006/` in your browser.
 | `npm run storybook` | Start Storybook (port 6006) |
 | `npm run lint` | Run ESLint |
 | `npm test` | Run unit tests |
+| `npm test -- --code-coverage` | Run tests with coverage report |
+
+---
+
+## 🧪 Quality
+
+### Unit Tests
+The project includes comprehensive unit tests covering:
+
+| Category | Files Tested |
+|----------|--------------|
+| **Reducers** | `cart.reducer.spec.ts`, `auth.reducer.spec.ts` |
+| **Selectors** | `cart.selectors.spec.ts`, `auth.selectors.spec.ts` |
+| **Effects** | `notification.effects.spec.ts`, `auth.effects.spec.ts` |
+| **Services** | `notification.service.spec.ts` |
+| **Components** | `product-card.component.spec.ts` |
+
+```bash
+# Run all tests
+npm test
+
+# Run tests with coverage
+npm test -- --code-coverage
+
+# Run tests in CI mode (headless)
+npm test -- --watch=false --browsers=ChromeHeadless
+```
+
+### CI/CD Pipeline
+GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR to `main`:
+
+1. **Install** - `npm ci`
+2. **Lint** - `npm run lint`
+3. **Test** - Unit tests with coverage report
+4. **Build** - Production bundle
+
+### Docker Support
+```bash
+# Build and run with Docker Compose
+docker-compose up --build
+
+# Access the app
+open http://localhost:4200
+```
+
+Docker configuration:
+- `Dockerfile` - Multi-stage build (Node → Nginx)
+- `nginx.conf` - Production-ready nginx config with SPA routing
+- `docker-compose.yml` - Easy container orchestration
 
 ---
 

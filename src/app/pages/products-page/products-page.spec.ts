@@ -1,18 +1,37 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ProductsPageComponent } from './products-page';
+import { provideMockStore } from '@ngrx/store/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
-import { ProductsPage } from './products-page';
+describe('ProductsPageComponent', () => {
+  let component: ProductsPageComponent;
+  let fixture: ComponentFixture<ProductsPageComponent>;
 
-describe('ProductsPage', () => {
-  let component: ProductsPage;
-  let fixture: ComponentFixture<ProductsPage>;
+  const initialState = {
+    products: {
+      list: [],
+      count: 0,
+      loading: false,
+      error: null
+    },
+    cart: { items: [] },
+    wishlist: { items: [] }
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProductsPage]
-    })
-    .compileComponents();
+      imports: [
+        ProductsPageComponent,
+        RouterTestingModule,
+        NoopAnimationsModule
+      ],
+      providers: [
+        provideMockStore({ initialState })
+      ]
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(ProductsPage);
+    fixture = TestBed.createComponent(ProductsPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -21,3 +40,4 @@ describe('ProductsPage', () => {
     expect(component).toBeTruthy();
   });
 });
+

@@ -5,14 +5,13 @@ import { of } from 'rxjs';
 import { map, mergeMap, catchError, tap, take } from 'rxjs/operators';
 import * as WishlistActions from './wishlist.actions';
 import { selectWishlistItems } from './wishlist.selectors';
+import { NotificationService } from '../../services/notification.service';
 
 @Injectable()
 export class WishlistEffects {
   private actions$ = inject(Actions);
-
-  // In a real app, we would call a service here.
-  // For now, we'll simulate with localStorage or just simple state manipulation.
-  // Since the reducer handles the state, effects might be used for persistence.
+  private store = inject(Store);
+  private notifications = inject(NotificationService);
 
   loadWishlist$ = createEffect(() => this.actions$.pipe(
     ofType(WishlistActions.loadWishlist),
@@ -25,31 +24,44 @@ export class WishlistEffects {
     })
   ));
 
-  saveToStorage$ = createEffect(() => this.actions$.pipe(
-    ofType(WishlistActions.addToWishlist, WishlistActions.removeFromWishlist, WishlistActions.toggleWishlist),
-    tap(action => {
-      // We need the state to save it. But here we only have the action.
-      // Ideally we select the state. But for simplicity, we can just save the item if it's add/remove.
-      // However, toggle is tricky without state.
-      // Better approach: use withLatestFrom to get the state.
-    }),
-    // Actually, let's just use the reducer to update state, and then an effect that listens to state changes?
-    // Or just re-select the wishlist from store.
-    mergeMap(() => {
-        // This is a bit hacky without injecting Store to select state.
-        // Let's inject Store.
-        return of({ type: 'NOOP' });
-    })
-  ), { dispatch: false });
-
-  private store = inject(Store);
-
   persistWishlist$ = createEffect(() => this.actions$.pipe(
     ofType(WishlistActions.addToWishlist, WishlistActions.removeFromWishlist, WishlistActions.toggleWishlist),
     // Wait for reducer to update
     mergeMap(() => this.store.select(selectWishlistItems).pipe(take(1))),
     tap(items => {
       localStorage.setItem('wishlist', JSON.stringify(items));
+    })
+  ), { dispatch: false });
+
+  // ✅ Show notification when adding to wishlist
+  showAddNotification$ = createEffect(() => this.actions$.pipe(
+    ofType(WishlistActions.addToWishlist),
+    tap(({ product }) => {
+      this.notifications.success(`"${product.name}" ajouté à la wishlist`);
+    })
+  ), { dispatch: false });
+
+  // ✅ Show notification when removing from wishlist
+  showRemoveNotification$ = createEffect(() => this.actions$.pipe(
+    ofType(WishlistActions.removeFromWishlist),
+    tap(() => {
+      this.notifications.info('Produit retiré de la wishlist');
+    })
+  ), { dispatch: false });
+
+  // ✅ Show notification when toggling wishlist (used by ProductCard)
+  showToggleNotification$ = createEffect(() => this.actions$.pipe(
+    ofType(WishlistActions.toggleWishlist),
+    tap(({ product }) => {
+      // Check if product is being added or removed by checking current wishlist
+      this.store.select(selectWishlistItems).pipe(take(1)).subscribe(items => {
+        const isInWishlist = items.some(item => item.id === product.id);
+        if (isInWishlist) {
+          this.notifications.success(`"${product.name}" ajouté à la wishlist`);
+        } else {
+          this.notifications.info(`"${product.name}" retiré de la wishlist`);
+        }
+      });
     })
   ), { dispatch: false });
 }

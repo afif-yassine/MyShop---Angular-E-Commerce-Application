@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CheckoutLayoutComponent } from './checkout-layout.component';
 import { CheckoutStepperComponent } from './checkout-stepper.component';
 import { ShopApiService } from '../../services/shop-api.service';
+import { NotificationService } from '../../services/notification.service';
 import { selectCartItems } from '../../state/cart/cart.selectors';
 import * as CartActions from '../../state/cart/cart.actions';
 import * as OrdersActions from '../../state/orders/orders.actions';
@@ -276,6 +277,7 @@ export class Step3ConfirmComponent implements OnInit {
   private store = inject(Store);
   private apiService = inject(ShopApiService);
   private router = inject(Router);
+  private notifications = inject(NotificationService);
 
   loading = false;
   error: string | null = null;
@@ -312,6 +314,9 @@ export class Step3ConfirmComponent implements OnInit {
             this.orderNumber = response.order_number;
             this.loading = false;
             
+            // Show success notification
+            this.notifications.success(`Commande #${response.order_number} confirmée !`);
+            
             const order: OrdersActions.Order = {
               id: `order-${Date.now()}`,
               orderNumber: response.order_number,
@@ -339,6 +344,14 @@ export class Step3ConfirmComponent implements OnInit {
           error: (err) => {
             this.error = err.error?.detail || 'Failed to place order';
             this.loading = false;
+            
+            // ✅ Scenario 4: Stock insufficient or other checkout errors
+            const errorMsg = this.error || '';
+            if (errorMsg.toLowerCase().includes('stock')) {
+              this.notifications.error(`Stock insuffisant: ${this.error}`);
+            } else {
+              this.notifications.error(`Échec de la commande: ${this.error}`);
+            }
           },
         });
       });

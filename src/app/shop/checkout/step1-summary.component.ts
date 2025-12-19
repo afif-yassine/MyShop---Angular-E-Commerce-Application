@@ -7,13 +7,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CheckoutStepperComponent } from './checkout-stepper.component';
 import { PromoCodeInputComponent } from '../promotions/promo-code-input.component';
 import { selectCartItems, selectCartTotal, selectPromoCode, selectDiscount } from '../../state/cart/cart.selectors';
 import * as CartActions from '../../state/cart/cart.actions';
 import { take } from 'rxjs/operators';
+import { NotificationService } from '../../services/notification.service';
 
 interface PromoResponse {
   itemsTotal: number;
@@ -225,7 +226,7 @@ interface PromoResponse {
 export class Step1SummaryComponent {
   private store = inject(Store);
   private http = inject(HttpClient);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   
   cartItems$ = this.store.select(selectCartItems);
   cartTotal$ = this.store.select(selectCartTotal);
@@ -252,19 +253,22 @@ export class Step1SummaryComponent {
         next: (response) => {
           this.promoLoading = false;
           if (response.error) {
-            this.snackBar.open(response.error, 'Close', { duration: 5000 });
+            // ✅ Scenario 3: Invalid promo code notification
+            this.notifications.warning(`Code promo invalide: ${response.error}`);
           } else {
             this.promoResponse = response;
             this.store.dispatch(CartActions.applyPromoCodeSuccess({ 
               code, 
               discount: response.discount 
             }));
+            this.notifications.success(`Code promo "${code}" appliqué avec succès !`);
           }
         },
         error: (err) => {
           this.promoLoading = false;
           const errorMsg = err.error?.error || 'Failed to apply promo code';
-          this.snackBar.open(errorMsg, 'Close', { duration: 5000 });
+          // ✅ Scenario 3: Promo code error notification
+          this.notifications.error(`Échec de l'application du code promo: ${errorMsg}`);
           this.store.dispatch(CartActions.applyPromoCodeFailure({ error: errorMsg }));
         }
       });
@@ -274,7 +278,7 @@ export class Step1SummaryComponent {
   removePromoCode() {
     this.store.dispatch(CartActions.removePromoCode());
     this.promoResponse = null;
-    this.snackBar.open('Promo code removed', 'Close', { duration: 3000 });
+    this.notifications.info('Code promo retiré');
   }
 
   getTaxes(): number {

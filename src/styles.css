@@ -212,12 +212,56 @@ a:hover {
   color: var(--color-primary) !important;
 }
 
-/* Fix for mat-select dropdown appearing behind footer */
+/* Fix for mat-select dropdown and snackbar appearing behind footer */
 .cdk-overlay-container {
-  z-index: 1100 !important;
+  z-index: 99999 !important;
 }
 
-/* Ensure paginator dropdown shows all options */
-.mat-mdc-paginator-page-size-select .mat-mdc-select-panel {
+/* Ensure paginator dropdown shows all options with solid background */
+.mat-mdc-paginator-page-size-select .mat-mdc-select-panel,
+.mat-mdc-select-panel {
   max-height: 300px !important;
+  background-color: white !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Global Notification Snackbar Styles */
+.mat-mdc-snack-bar-container {
+  margin-top: 70px !important; /* Account for fixed header */
+}
+
+.snackbar-success .mdc-snackbar__surface {
+  background-color: #2e7d32 !important;
+}
+
+.snackbar-success .mdc-snackbar__label,
+.snackbar-success .mat-mdc-button {
+  color: white !important;
+}
+
+.snackbar-error .mdc-snackbar__surface {
+  background-color: #c62828 !important;
+}
+
+.snackbar-error .mdc-snackbar__label,
+.snackbar-error .mat-mdc-button {
+  color: white !important;
+}
+
+.snackbar-warning .mdc-snackbar__surface {
+  background-color: #ef6c00 !important;
+}
+
+.snackbar-warning .mdc-snackbar__label,
+.snackbar-warning .mat-mdc-button {
+  color: white !important;
+}
+
+.snackbar-info .mdc-snackbar__surface {
+  background-color: #1565c0 !important;
+}
+
+.snackbar-info .mdc-snackbar__label,
+.snackbar-info .mat-mdc-button {
+  color: white !important;
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
 import { Subscription } from 'rxjs';
 import { HeaderComponent } from '../../components/layout/header.component';
 import { FloatingInputComponent } from '../../components/ui/floating-input.component';
@@ -213,8 +214,10 @@ export class LoginPagePremiumComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private store = inject(Store);
   private router = inject(Router);
+  private actions$ = inject(Actions);
   private googleAuthService = inject(GoogleAuthService);
   private googleSubscription?: Subscription;
+  private authSubscription?: Subscription;
 
   isLoading = false;
   isGoogleLoading = false;
@@ -227,10 +230,19 @@ export class LoginPagePremiumComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Initialize Google Sign-In
     this.googleAuthService.initialize();
+
+    // Subscribe to auth actions to reset loading state
+    this.authSubscription = this.actions$.pipe(
+      ofType(AuthActions.loginSuccess, AuthActions.loginFailure, AuthActions.loginWithGoogleFailure)
+    ).subscribe((action) => {
+      this.isLoading = false;
+      this.isGoogleLoading = false;
+    });
   }
 
   ngOnDestroy() {
     this.googleSubscription?.unsubscribe();
+    this.authSubscription?.unsubscribe();
   }
 
   getErrorMessage(controlName: string): string | null {
