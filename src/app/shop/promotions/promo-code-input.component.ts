@@ -19,7 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
     <div class="promo-input">
       <mat-form-field>
         <mat-label>Promo Code</mat-label>
-        <input matInput [formControl]="promoCode" placeholder="SUMMER2025">
+        <input matInput [formControl]="promoCode" placeholder="WELCOME10">
       </mat-form-field>
       <button mat-raised-button color="accent" (click)="apply()" [disabled]="promoCode.invalid || promoCode.pristine">
         Apply
