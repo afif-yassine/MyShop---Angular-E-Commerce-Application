@@ -12,6 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Store } from '@ngrx/store';
 import { selectUserProfile, selectUserLoading, selectUserError } from '../../../state/user/user.selectors';
+import { selectUser } from '../../../state/auth/auth.selectors';
 import * as UserActions from '../../../state/user/user.actions';
 
 @Component({
@@ -41,10 +42,12 @@ import * as UserActions from '../../../state/user/user.actions';
         
         <mat-card-content>
           <div class="avatar-section">
-            <div class="avatar-placeholder">
+            <img *ngIf="userPicture && !imageError" [src]="userPicture" class="avatar-image" alt="" (error)="onImageError()">
+            <div *ngIf="!userPicture || imageError" class="avatar-placeholder">
               <mat-icon>person</mat-icon>
             </div>
-            <button mat-button color="primary">Change Photo</button>
+            <button mat-button color="primary" *ngIf="!isGoogleUser">Change Photo</button>
+            <span *ngIf="isGoogleUser" class="google-info">Photo synced from Google</span>
           </div>
 
           <form [formGroup]="profileForm" (ngSubmit)="onSubmitProfile()" class="profile-form">
@@ -214,6 +217,23 @@ import * as UserActions from '../../../state/user/user.actions';
       color: #1a237e;
     }
 
+    .avatar-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 16px;
+      border: 3px solid #e3f2fd;
+    }
+
+    .google-info {
+      font-size: 12px;
+      color: #5f6368;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
     .profile-form, .preferences-form {
       display: flex;
       flex-direction: column;
@@ -294,8 +314,13 @@ export class UserProfilePageComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
 
   userProfile$ = this.store.select(selectUserProfile);
+  authUser$ = this.store.select(selectUser);
   loading$ = this.store.select(selectUserLoading);
   error$ = this.store.select(selectUserError);
+
+  userPicture: string | null = null;
+  isGoogleUser = false;
+  imageError = false;
 
   profileForm = this.fb.group({
     fullName: [''],
@@ -313,16 +338,31 @@ export class UserProfilePageComponent implements OnInit {
   });
 
   ngOnInit() {
-    // Load user profile
+    // First populate with auth user data (real user info from login)
+    this.authUser$.subscribe(authUser => {
+      if (authUser) {
+        this.userPicture = authUser.picture || null;
+        this.isGoogleUser = authUser.isGoogleUser || false;
+        
+        // Pre-populate with auth data
+        this.profileForm.patchValue({
+          fullName: authUser.name || '',
+          email: authUser.email || ''
+        });
+        this.profileForm.markAsPristine();
+      }
+    });
+    
+    // Then load additional profile data (address, phone, preferences)
     this.store.dispatch(UserActions.loadUserProfile());
     
-    // Populate forms when profile loads
+    // Populate additional fields from user profile (don't overwrite auth data)
     this.userProfile$.subscribe(profile => {
       if (profile && profile.id) {
+        // Only update fields that aren't already set from auth
+        const currentValues = this.profileForm.value;
         this.profileForm.patchValue({
-          fullName: profile.fullName || '',
-          phone: profile.phone || '',
-          email: profile.email || '',
+          phone: profile.phone || currentValues.phone || '',
           street: profile.defaultAddress?.street || '',
           city: profile.defaultAddress?.city || '',
           postalCode: profile.defaultAddress?.postalCode || '',
@@ -372,5 +412,9 @@ export class UserProfilePageComponent implements OnInit {
     }));
     this.snackBar.open('Preferences updated successfully!', 'Close', { duration: 3000 });
     this.preferencesForm.markAsPristine();
+  }
+
+  onImageError() {
+    this.imageError = true;
   }
 }

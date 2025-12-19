@@ -12,3 +12,8 @@ export const selectReviewsLoading = createSelector(
   selectReviewsState,
   (state) => state.loading
 );
+
+export const selectReviewsError = createSelector(
+  selectReviewsState,
+  (state) => state.error
+);

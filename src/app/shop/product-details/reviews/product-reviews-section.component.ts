@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReviewFormComponent } from './review-form.component';
 import { loadReviews, addReview } from '../../../state/reviews/reviews.actions';
-import { selectReviewsForProduct, selectReviewsLoading } from '../../../state/reviews/reviews.selectors';
+import { selectReviewsForProduct, selectReviewsLoading, selectReviewsError } from '../../../state/reviews/reviews.selectors';
 
 @Component({
   selector: 'app-product-reviews-section',
@@ -26,6 +26,11 @@ import { selectReviewsForProduct, selectReviewsLoading } from '../../../state/re
         <mat-spinner diameter="40"></mat-spinner>
       </div>
 
+      <div *ngIf="error$ | async as error" class="error-banner">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error }}</span>
+      </div>
+
       <div class="reviews-list" *ngIf="reviews$ | async as reviews">
         <div *ngIf="reviews.length === 0 && !(loading$ | async)" class="no-reviews">
           <p>No reviews yet. Be the first to review this product!</p>
@@ -33,7 +38,7 @@ import { selectReviewsForProduct, selectReviewsLoading } from '../../../state/re
 
         <mat-card *ngFor="let review of reviews" class="review-card">
           <mat-card-header>
-            <div mat-card-avatar class="avatar">{{ review.userName.charAt(0) }}</div>
+            <div mat-card-avatar class="avatar">{{ (review.userName || 'A').charAt(0) }}</div>
             <mat-card-title>{{ review.userName }}</mat-card-title>
             <mat-card-subtitle>{{ review.date | date }}</mat-card-subtitle>
           </mat-card-header>
@@ -46,7 +51,10 @@ import { selectReviewsForProduct, selectReviewsLoading } from '../../../state/re
         </mat-card>
       </div>
 
-      <app-review-form (submitReview)="onAddReview($event)"></app-review-form>
+      <app-review-form 
+        (submitReview)="onAddReview($event)" 
+        [isSubmitting]="!!(loading$ | async)">
+      </app-review-form>
     </div>
   `,
   styles: [`
@@ -58,6 +66,17 @@ import { selectReviewsForProduct, selectReviewsLoading } from '../../../state/re
       justify-content: center;
       padding: 2rem;
     }
+    .error-banner {
+      background: #fff5f5;
+      color: #c53030;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid #feb2b2;
+    }
     .reviews-list {
       display: flex;
       flex-direction: column;
@@ -68,7 +87,7 @@ import { selectReviewsForProduct, selectReviewsLoading } from '../../../state/re
       margin-bottom: 1rem;
     }
     .avatar {
-      background: #ccc;
+      background: #2a2a2a;
       color: white;
       display: flex;
       align-items: center;
@@ -97,6 +116,7 @@ export class ProductReviewsSectionComponent implements OnChanges {
   
   reviews$ = this.store.select(selectReviewsForProduct(0)); // Initial
   loading$ = this.store.select(selectReviewsLoading);
+  error$ = this.store.select(selectReviewsError);
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['productId'] && this.productId) {

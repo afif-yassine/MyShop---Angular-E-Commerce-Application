@@ -5,22 +5,30 @@ import { paginate, avgRating } from './utils';
 
 const API = '/api';
 
-// Mock user data
-let currentUser = {
-  id: '1',
-  username: 'demo',
-  email: 'demo@example.com',
-  fullName: 'Demo User',
-  phone: '+33 1 23 45 67 89',
+// Mock user profile data (empty defaults - will be merged with auth user data)
+let userProfileData: {
+  phone?: string;
+  defaultAddress?: {
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
+  preferences: {
+    newsletter: boolean;
+    defaultMinRating?: number;
+  };
+} = {
+  phone: '',
   defaultAddress: {
-    street: '123 Demo Street',
-    city: 'Paris',
-    postalCode: '75001',
-    country: 'France'
+    street: '',
+    city: '',
+    postalCode: '',
+    country: ''
   },
   preferences: {
-    newsletter: true,
-    defaultMinRating: 3
+    newsletter: false,
+    defaultMinRating: undefined
   }
 };
 
@@ -45,6 +53,19 @@ const promoCodes: { [code: string]: { type: 'percent' | 'fixed' | 'shipping'; va
   'VIP20': { type: 'percent', value: 20, minAmount: 50 }
 };
 
+// Helper to get reviews from localStorage
+const getStoredReviews = () => {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem('mock_reviews');
+      return stored ? JSON.parse(stored) : mockReviews;
+    }
+  } catch (e) {
+    console.error('Failed to load reviews:', e);
+  }
+  return mockReviews;
+};
+
 export const handlers = [
   // Auth: POST /api/auth/token/ -> { access, refresh }
   http.post(`${API}/auth/token/`, async () => {
@@ -67,19 +88,75 @@ export const handlers = [
   // USER PROFILE ENDPOINTS
   // ========================================
 
-  // GET /api/me/ -> user profile
+  // GET /api/me/ -> user profile (merged with auth user data)
   http.get(`${API}/me/`, async () => {
+    // Try to get auth user from localStorage
+    let authUser: any = null;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const userJson = localStorage.getItem('user');
+        if (userJson) {
+          authUser = JSON.parse(userJson);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse user from localStorage:', e);
+    }
+
+    // Merge auth user data with profile data
+    const currentUser = {
+      id: authUser?.sub?.toString() || '1',
+      username: authUser?.email?.split('@')[0] || '',
+      email: authUser?.email || '',
+      fullName: authUser?.name || '',
+      phone: userProfileData.phone || '',
+      defaultAddress: userProfileData.defaultAddress,
+      preferences: userProfileData.preferences
+    };
+
     return HttpResponse.json(currentUser, { status: 200 });
   }),
 
   // PATCH /api/me/ -> update profile
   http.patch(`${API}/me/`, async ({ request }) => {
     const body = await request.json() as any;
-    currentUser = { ...currentUser, ...body };
-    if (body.preferences) {
-      currentUser.preferences = { ...currentUser.preferences, ...body.preferences };
+    
+    // Update userProfileData with the new values
+    if (body.phone !== undefined) {
+      userProfileData.phone = body.phone;
     }
-    return HttpResponse.json(currentUser, { status: 200 });
+    if (body.defaultAddress) {
+      userProfileData.defaultAddress = { ...userProfileData.defaultAddress, ...body.defaultAddress };
+    }
+    if (body.preferences) {
+      userProfileData.preferences = { ...userProfileData.preferences, ...body.preferences };
+    }
+    
+    // Get auth user for response
+    let authUser: any = null;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const userJson = localStorage.getItem('user');
+        if (userJson) {
+          authUser = JSON.parse(userJson);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse user from localStorage:', e);
+    }
+    
+    // Build response with merged data
+    const responseUser = {
+      id: authUser?.sub?.toString() || '1',
+      username: authUser?.email?.split('@')[0] || '',
+      email: body.email || authUser?.email || '',
+      fullName: body.fullName || authUser?.name || '',
+      phone: userProfileData.phone || '',
+      defaultAddress: userProfileData.defaultAddress,
+      preferences: userProfileData.preferences
+    };
+    
+    return HttpResponse.json(responseUser, { status: 200 });
   }),
 
   // GET /api/me/orders/ -> user's orders
@@ -155,7 +232,7 @@ export const handlers = [
   // GET /api/products/:id/reviews/ -> list of reviews
   http.get(`${API}/products/:id/reviews/`, async ({ params }) => {
     const productId = Number(params['id']);
-    const reviews = mockReviews[productId] || [];
+    const reviews = getStoredReviews()[productId] || [];
     return HttpResponse.json({ results: reviews, count: reviews.length }, { status: 200 });
   }),
 
@@ -168,6 +245,14 @@ export const handlers = [
       return HttpResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 400 });
     }
     
+    const allReviews = getStoredReviews();
+    const productReviews = allReviews[productId] || [];
+    
+    // For demo purposes, we'll allow multiple reviews but log if it's a "duplicate"
+    if (productReviews.some((r: any) => r.userName.toLowerCase() === body.userName.toLowerCase())) {
+      console.warn(`User ${body.userName} is adding another review to product ${productId}`);
+    }
+    
     const newReview = {
       id: Date.now(),
       userName: body.userName || 'Anonymous',
@@ -177,10 +262,15 @@ export const handlers = [
       productId
     };
     
-    if (!mockReviews[productId]) {
-      mockReviews[productId] = [];
+    allReviews[productId] = [newReview, ...productReviews];
+    
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('mock_reviews', JSON.stringify(allReviews));
+      }
+    } catch (e) {
+      console.error('Failed to save review:', e);
     }
-    mockReviews[productId].unshift(newReview);
     
     return HttpResponse.json(newReview, { status: 201 });
   }),
@@ -354,7 +444,7 @@ export const handlers = [
   // PRODUCTS ENDPOINTS
   // ========================================
 
-  // Products list: GET /api/products/?page=&page_size=&min_rating=&ordering=
+  // Products list: GET /api/products/
   http.get(`${API}/products/`, async ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') || '1');
@@ -366,18 +456,17 @@ export const handlers = [
     const minPrice = Number(url.searchParams.get('min_price') || '0');
     const maxPrice = Number(url.searchParams.get('max_price') || '999999');
 
-    // Merge base products with custom products from localStorage
+    // Load all products from localStorage
     let allProducts = [...products];
     try {
       if (typeof localStorage !== 'undefined') {
-        const customProductsJson = localStorage.getItem('custom_products');
-        if (customProductsJson) {
-          const customProducts = JSON.parse(customProductsJson);
-          allProducts = [...customProducts, ...allProducts];
+        const storedProductsJson = localStorage.getItem('mock_products');
+        if (storedProductsJson) {
+          allProducts = JSON.parse(storedProductsJson);
         }
       }
     } catch (e) {
-      console.error('Failed to load custom products:', e);
+      console.error('Failed to load products from localStorage:', e);
     }
 
     let rows = allProducts
@@ -407,6 +496,24 @@ export const handlers = [
 
     const { count, results } = paginate(rows, page, page_size);
     return HttpResponse.json({ count, next: null, previous: null, results }, { status: 200 });
+  }),
+
+  // Create product: POST /api/products/
+  http.post(`${API}/products/`, async ({ request }) => {
+    const newProduct = await request.json() as any;
+    
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const storedProductsJson = localStorage.getItem('mock_products');
+        const allProducts = storedProductsJson ? JSON.parse(storedProductsJson) : [...products];
+        allProducts.push(newProduct);
+        localStorage.setItem('mock_products', JSON.stringify(allProducts));
+      }
+    } catch (e) {
+      console.error('Failed to save to localStorage in handler:', e);
+    }
+    
+    return HttpResponse.json(newProduct, { status: 201 });
   }),
 
   // Product rating: GET /api/products/:id/rating/

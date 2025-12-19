@@ -211,3 +211,13 @@ a:hover {
 .premium-menu .mat-mdc-menu-item:hover .mat-icon {
   color: var(--color-primary) !important;
 }
+
+/* Fix for mat-select dropdown appearing behind footer */
+.cdk-overlay-container {
+  z-index: 1100 !important;
+}
+
+/* Ensure paginator dropdown shows all options */
+.mat-mdc-paginator-page-size-select .mat-mdc-select-panel {
+  max-height: 300px !important;
+}

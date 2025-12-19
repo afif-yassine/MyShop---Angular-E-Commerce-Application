@@ -233,19 +233,8 @@ export class AdminProductFormComponent {
         owner_id: 1 // Admin
       };
 
-      // Dispatch action to add to state
+      // Dispatch action to add to state. Effects handle API call and navigation.
       this.store.dispatch(addProduct({ product: newProduct }));
-      
-      // Also persist to localStorage so it survives page refresh
-      try {
-        const existingProducts = JSON.parse(localStorage.getItem('custom_products') || '[]');
-        existingProducts.push(newProduct);
-        localStorage.setItem('custom_products', JSON.stringify(existingProducts));
-      } catch (e) {
-        console.error('Failed to save product to localStorage:', e);
-      }
-      
-      this.router.navigate(['/shop/products']);
     }
   }
 }

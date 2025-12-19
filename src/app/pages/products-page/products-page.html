@@ -34,12 +34,12 @@
         </button>
       </div>
 
-      <!-- Loading State (Initial or Empty) -->
+      <!-- Skeleton Loaders (Initial Load) -->
       <div *ngIf="(loading$ | async) && (products$ | async)?.length === 0" class="loading-container">
         <app-products-list [loading]="true" [products]="[]"></app-products-list>
       </div>
 
-      <!-- Error State -->
+      <!-- Error State with Retry Button -->
       <div *ngIf="error$ | async as error" class="error-container">
         <mat-card class="error-card">
           <mat-card-content>
@@ -47,7 +47,23 @@
             <h3>Oops! Something went wrong</h3>
             <p>{{ error }}</p>
             <button mat-raised-button color="primary" (click)="loadProducts()">
-              Try Again
+              <mat-icon>refresh</mat-icon>
+              Réessayer
+            </button>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!(loading$ | async) && !(error$ | async) && (count$ | async) === 0" class="empty-state">
+        <mat-card class="empty-card">
+          <mat-card-content>
+            <mat-icon class="empty-icon">search_off</mat-icon>
+            <h3>Aucun produit trouvé</h3>
+            <p>Aucun produit ne correspond à vos filtres. Essayez de modifier vos critères de recherche.</p>
+            <button mat-stroked-button color="primary" (click)="onClearFilters()">
+              <mat-icon>filter_alt_off</mat-icon>
+              Réinitialiser les filtres
             </button>
           </mat-card-content>
         </mat-card>
@@ -59,7 +75,7 @@
         <!-- SWR Loading Indicator -->
         <div *ngIf="loading$ | async" class="swr-loader">
           <mat-spinner diameter="30"></mat-spinner>
-          <span>Updating...</span>
+          <span>Mise à jour...</span>
         </div>
 
         <app-products-list
@@ -72,9 +88,10 @@
         <div class="pagination-container">
           <mat-paginator
             [length]="count$ | async"
-            [pageSize]="(filterForm.get('pageSize')?.value) || 12"
+            [pageSize]="filterForm.get('pageSize')?.value || 12"
             [pageIndex]="((filterForm.get('page')?.value) || 1) - 1"
-            [pageSizeOptions]="[12, 24, 48, 96]"
+            [pageSizeOptions]="pageSizeOptions"
+            [hidePageSize]="false"
             (page)="onPageChange($event)"
             showFirstLastButtons>
           </mat-paginator>

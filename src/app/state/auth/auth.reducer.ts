@@ -20,13 +20,13 @@ export const initialState: AuthState = {
 export const authReducer = createReducer(
   initialState,
 
-  on(AuthActions.login, AuthActions.register, (state) => ({
+  on(AuthActions.login, AuthActions.register, AuthActions.loginWithGoogle, (state) => ({
     ...state,
     loading: true,
     error: null,
   })),
 
-  on(AuthActions.loginSuccess, (state, { access, refresh, user }) => {
+  on(AuthActions.loginSuccess, AuthActions.loginWithGoogleSuccess, (state, { access, refresh, user }) => {
     // Persist to localStorage
     localStorage.setItem('access_token', access);
     localStorage.setItem('refresh_token', refresh);
@@ -42,7 +42,7 @@ export const authReducer = createReducer(
     };
   }),
 
-  on(AuthActions.loginFailure, (state, { error }) => ({
+  on(AuthActions.loginFailure, AuthActions.loginWithGoogleFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error,

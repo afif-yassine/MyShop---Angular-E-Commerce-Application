@@ -26,12 +26,18 @@ export const reviewsReducer = createReducer(
       ...state.reviews,
       [productId]: reviews
     },
-    loading: false
+    loading: false,
+    error: null
   })),
   on(ReviewsActions.loadReviewsFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error
+  })),
+  on(ReviewsActions.addReview, (state) => ({
+    ...state,
+    loading: true,
+    error: null
   })),
   on(ReviewsActions.addReviewSuccess, (state, { review }) => {
     const productReviews = state.reviews[review.productId] || [];
@@ -40,7 +46,14 @@ export const reviewsReducer = createReducer(
       reviews: {
         ...state.reviews,
         [review.productId]: [review, ...productReviews]
-      }
+      },
+      loading: false,
+      error: null
     };
-  })
+  }),
+  on(ReviewsActions.addReviewFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  }))
 );

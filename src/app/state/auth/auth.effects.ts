@@ -62,10 +62,46 @@ export class AuthEffects {
     )
   );
 
+  // Effect: Google Login
+  loginWithGoogle$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.loginWithGoogle),
+      switchMap(({ googleUser }) =>
+        this.api.loginWithGoogle(googleUser).pipe(
+          map(({ access, refresh }) => {
+            localStorage.setItem('access_token', access);
+            localStorage.setItem('refresh_token', refresh);
+
+            // Decode token
+            const payload = JSON.parse(atob(access));
+            return AuthActions.loginWithGoogleSuccess({ access, refresh, user: payload });
+          }),
+          catchError((error) =>
+            of(
+              AuthActions.loginWithGoogleFailure({
+                error: error?.message ?? 'Google login failed',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+
   redirectAfterLogin$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(AuthActions.loginSuccess),
+        ofType(AuthActions.loginSuccess, AuthActions.loginWithGoogleSuccess),
+        tap(() => this.router.navigate(['/']))
+      ),
+    { dispatch: false }
+  );
+
+  // Redirect to home after logout
+  redirectAfterLogout$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.logout),
         tap(() => this.router.navigate(['/']))
       ),
     { dispatch: false }

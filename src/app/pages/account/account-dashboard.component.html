@@ -1,14 +1,19 @@
 <div class="account-dashboard">
-  <div class="container">
+  <div class="container" *ngIf="user$ | async as user">
     <!-- Profile Header -->
     <div class="profile-header premium-card">
       <div class="profile-avatar">
-        <div class="avatar-circle">{{ user.avatar }}</div>
+        <img *ngIf="user.picture && !imageError" [src]="user.picture" alt="" class="avatar-image" (error)="onImageError()">
+        <div *ngIf="!user.picture || imageError" class="avatar-circle">{{ user.avatar }}</div>
       </div>
       <div class="profile-info">
         <h1>{{ user.name }}</h1>
         <p class="profile-email">{{ user.email }}</p>
-        <button mat-raised-button class="btn btn-outline">
+        <span *ngIf="user.isGoogleUser" class="google-badge">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="14">
+          Google Account
+        </span>
+        <button mat-raised-button class="btn btn-outline" routerLink="/account/profile">
           <mat-icon>edit</mat-icon>
           Edit Profile
         </button>

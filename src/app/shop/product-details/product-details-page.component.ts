@@ -50,8 +50,21 @@ import { WishlistButtonComponent } from '../wishlist/wishlist-button.component';
         </a>
       </div>
 
-      <div *ngIf="loading" class="loading-state">
-        <mat-spinner diameter="40"></mat-spinner>
+      <!-- Skeleton Loader -->
+      <div *ngIf="loading" class="product-skeleton">
+        <div class="skeleton-grid">
+          <div class="skeleton-image shimmer"></div>
+          <div class="skeleton-info">
+            <div class="skeleton-badge shimmer"></div>
+            <div class="skeleton-title shimmer"></div>
+            <div class="skeleton-stars shimmer"></div>
+            <div class="skeleton-price shimmer"></div>
+            <div class="skeleton-divider"></div>
+            <div class="skeleton-desc shimmer"></div>
+            <div class="skeleton-desc shimmer" style="width: 80%"></div>
+            <div class="skeleton-btn shimmer"></div>
+          </div>
+        </div>
       </div>
 
       <div *ngIf="error" class="error-state">
@@ -66,12 +79,12 @@ import { WishlistButtonComponent } from '../wishlist/wishlist-button.component';
           <!-- Left: Image Gallery -->
           <div class="product-gallery">
             <div class="main-image-container mat-elevation-z2">
-              <img [src]="'https://picsum.photos/seed/' + product.id + '/800/800'" [alt]="product.name" class="main-image">
+              <img [src]="product.image || 'https://picsum.photos/seed/' + product.id + '/800/800'" [alt]="product.name" class="main-image">
               <div class="wishlist-overlay">
                 <app-wishlist-button [product]="product"></app-wishlist-button>
               </div>
             </div>
-            <div class="thumbnails">
+            <div class="thumbnails" *ngIf="!product.image">
               <div class="thumb active">
                 <img [src]="'https://picsum.photos/seed/' + product.id + '/100/100'" alt="Thumbnail 1">
               </div>
@@ -87,22 +100,20 @@ import { WishlistButtonComponent } from '../wishlist/wishlist-button.component';
           <!-- Right: Details -->
           <div class="product-info">
             <div class="product-header">
-              <div class="category-badge">Premium Collection</div>
+              <div class="category-badge">{{ product.category || 'Premium Collection' }}</div>
               <h1 class="product-title">{{ product.name }}</h1>
               
               <div class="rating-row">
                 <div class="stars">
-                  <mat-icon class="star-filled">star</mat-icon>
-                  <mat-icon class="star-filled">star</mat-icon>
-                  <mat-icon class="star-filled">star</mat-icon>
-                  <mat-icon class="star-filled">star</mat-icon>
-                  <mat-icon class="star-half">star_half</mat-icon>
+                  <mat-icon *ngFor="let star of [1,2,3,4,5]" [class.star-filled]="star <= getAvgRating()" [class.star-half]="star > getAvgRating() && (star - 0.5) <= getAvgRating()">
+                    {{ star <= getAvgRating() ? 'star' : (star - 0.5) <= getAvgRating() ? 'star_half' : 'star_outline' }}
+                  </mat-icon>
                 </div>
-                <span class="rating-text">{{ getAvgRating() | number: '1.1-1' }} (128 reviews)</span>
+                <span class="rating-text">{{ getAvgRating() | number: '1.1-1' }} ({{ product.ratings?.length || 0 }} reviews)</span>
               </div>
 
               <div class="price-row">
-                <span class="price">{{ product.price | currency:'USD' }}</span>
+                <span class="price">{{ product.price | currency:'EUR' }}</span>
                 <span class="stock-status" [class.in-stock]="product.stock > 0" [class.out-of-stock]="product.stock === 0">
                   {{ product.stock > 0 ? 'In Stock (' + product.stock + ' available)' : 'Out of Stock' }}
                 </span>
@@ -112,7 +123,7 @@ import { WishlistButtonComponent } from '../wishlist/wishlist-button.component';
             <mat-divider></mat-divider>
 
             <div class="product-description-short">
-              <p>Experience luxury with this premium {{ product.name }}. Crafted with attention to detail and designed for those who appreciate quality.</p>
+              <p>{{ product.description }}</p>
             </div>
 
             <div class="actions-section">
@@ -138,17 +149,17 @@ import { WishlistButtonComponent } from '../wishlist/wishlist-button.component';
             </div>
 
             <div class="features-list">
-              <div class="feature-item">
+              <div class="feature-item" *ngFor="let feature of product.features | slice:0:4">
+                <mat-icon>check_circle</mat-icon>
+                <span>{{ feature }}</span>
+              </div>
+              <div class="feature-item" *ngIf="!product.features || product.features.length === 0">
                 <mat-icon>local_shipping</mat-icon>
                 <span>Free Shipping</span>
               </div>
-              <div class="feature-item">
+              <div class="feature-item" *ngIf="!product.features || product.features.length === 0">
                 <mat-icon>verified</mat-icon>
-                <span>2 Year Warranty</span>
-              </div>
-              <div class="feature-item">
-                <mat-icon>cached</mat-icon>
-                <span>30 Day Returns</span>
+                <span>Premium Quality</span>
               </div>
             </div>
           </div>
@@ -159,29 +170,34 @@ import { WishlistButtonComponent } from '../wishlist/wishlist-button.component';
           <mat-tab-group animationDuration="0ms" mat-stretch-tabs="false" mat-align-tabs="start">
             <mat-tab label="Description">
               <div class="tab-content">
-                <h3>Product Details</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <h3>About {{ product.name }}</h3>
+                <p>{{ product.description }}</p>
+                <div *ngIf="product.features && product.features.length > 0">
+                  <h4 style="margin-top: 24px;">Key Features</h4>
+                  <ul>
+                    <li *ngFor="let feature of product.features" style="margin-bottom: 8px;">{{ feature }}</li>
+                  </ul>
+                </div>
               </div>
             </mat-tab>
             <mat-tab label="Specifications">
               <div class="tab-content">
                 <table class="specs-table">
                   <tr>
-                    <td>Material</td>
-                    <td>Premium Composite</td>
+                    <td>Category</td>
+                    <td>{{ product.category }}</td>
                   </tr>
                   <tr>
-                    <td>Weight</td>
-                    <td>1.2 kg</td>
+                    <td>Availability</td>
+                    <td>{{ product.stock > 0 ? 'In Stock' : 'Out of Stock' }}</td>
                   </tr>
                   <tr>
-                    <td>Dimensions</td>
-                    <td>24 x 12 x 5 cm</td>
+                    <td>Stock Level</td>
+                    <td>{{ product.stock }} units</td>
                   </tr>
                   <tr>
-                    <td>Origin</td>
-                    <td>France</td>
+                    <td>Serial ID</td>
+                    <td>#{{ product.id }}</td>
                   </tr>
                 </table>
               </div>
@@ -423,6 +439,95 @@ import { WishlistButtonComponent } from '../wishlist/wishlist-button.component';
       font-weight: 600;
       width: 200px;
       color: #444;
+    }
+
+    /* Skeleton Loader Styles */
+    .product-skeleton {
+      padding: 24px 0;
+    }
+    
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+    
+    @media (min-width: 960px) {
+      .skeleton-grid {
+        grid-template-columns: 1.2fr 1fr;
+      }
+    }
+    
+    .skeleton-image {
+      aspect-ratio: 1;
+      border-radius: 16px;
+      background: #e0e0e0;
+    }
+    
+    .skeleton-info {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .skeleton-badge {
+      width: 100px;
+      height: 24px;
+      border-radius: 20px;
+      background: #e0e0e0;
+    }
+    
+    .skeleton-title {
+      width: 80%;
+      height: 40px;
+      border-radius: 4px;
+      background: #e0e0e0;
+    }
+    
+    .skeleton-stars {
+      width: 150px;
+      height: 24px;
+      border-radius: 4px;
+      background: #e0e0e0;
+    }
+    
+    .skeleton-price {
+      width: 120px;
+      height: 32px;
+      border-radius: 4px;
+      background: #e0e0e0;
+    }
+    
+    .skeleton-divider {
+      height: 1px;
+      background: #e0e0e0;
+      margin: 8px 0;
+    }
+    
+    .skeleton-desc {
+      width: 100%;
+      height: 20px;
+      border-radius: 4px;
+      background: #e0e0e0;
+    }
+    
+    .skeleton-btn {
+      width: 200px;
+      height: 48px;
+      border-radius: 8px;
+      background: #e0e0e0;
+      margin-top: 16px;
+    }
+    
+    .shimmer {
+      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
     }
   `]
 })

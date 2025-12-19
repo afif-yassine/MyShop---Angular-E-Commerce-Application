@@ -43,7 +43,7 @@ export const productsReducer = createReducer(
     error,
   })),
 
-  on(ProductsActions.addProduct, (state, { product }) => ({
+  on(ProductsActions.addProductSuccess, (state, { product }) => ({
     ...state,
     list: [product, ...state.list],
     count: state.count + 1

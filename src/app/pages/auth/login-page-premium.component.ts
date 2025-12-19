@@ -1,11 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { HeaderComponent } from '../../components/layout/header.component';
 import { FloatingInputComponent } from '../../components/ui/floating-input.component';
 import * as AuthActions from '../../state/auth/auth.actions';
+import { GoogleAuthService } from '../../services/google-auth.service';
 
 @Component({
   selector: 'app-login-page-premium',
@@ -57,9 +59,9 @@ import * as AuthActions from '../../state/auth/auth.actions';
             <span>Or continue with</span>
           </div>
 
-          <button type="button" class="btn btn-secondary google-btn">
+          <button type="button" class="btn btn-secondary google-btn" (click)="loginWithGoogle()" [disabled]="isGoogleLoading">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="20">
-            Google
+            {{ isGoogleLoading ? 'Connecting...' : 'Continue with Google' }}
           </button>
 
           <p class="auth-footer">
@@ -134,6 +136,7 @@ import * as AuthActions from '../../state/auth/auth.actions';
       font-weight: 500;
       font-size: 0.9375rem;
       transition: all 0.2s;
+      cursor: pointer;
     }
 
     .btn-primary {
@@ -185,8 +188,13 @@ import * as AuthActions from '../../state/auth/auth.actions';
       gap: 0.75rem;
     }
 
-    .btn-secondary:hover {
+    .btn-secondary:hover:not(:disabled) {
       background: #f9fafb;
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
     }
 
     .auth-footer {
@@ -201,17 +209,29 @@ import * as AuthActions from '../../state/auth/auth.actions';
     }
   `]
 })
-export class LoginPagePremiumComponent {
+export class LoginPagePremiumComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private store = inject(Store);
   private router = inject(Router);
+  private googleAuthService = inject(GoogleAuthService);
+  private googleSubscription?: Subscription;
 
   isLoading = false;
+  isGoogleLoading = false;
 
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
+
+  ngOnInit() {
+    // Initialize Google Sign-In
+    this.googleAuthService.initialize();
+  }
+
+  ngOnDestroy() {
+    this.googleSubscription?.unsubscribe();
+  }
 
   getErrorMessage(controlName: string): string | null {
     const control = this.loginForm.get(controlName);
@@ -228,10 +248,35 @@ export class LoginPagePremiumComponent {
       this.isLoading = true;
       const { email, password } = this.loginForm.value;
       
-      // Simulate API call
+      // Dispatch login action
       this.store.dispatch(AuthActions.login({ username: email, password }));
     } else {
       this.loginForm.markAllAsTouched();
     }
   }
+
+  loginWithGoogle() {
+    this.isGoogleLoading = true;
+    
+    // Subscribe to Google Sign-In response
+    this.googleSubscription = this.googleAuthService.signIn().subscribe({
+      next: (googleUser) => {
+        // Dispatch action with real Google user data
+        this.store.dispatch(AuthActions.loginWithGoogle({
+          googleUser: {
+            id: googleUser.id,
+            email: googleUser.email,
+            name: googleUser.name,
+            picture: googleUser.picture
+          }
+        }));
+        this.isGoogleLoading = false;
+      },
+      error: (error) => {
+        console.error('Google Sign-In error:', error);
+        this.isGoogleLoading = false;
+      }
+    });
+  }
 }
+

@@ -1,42 +1,45 @@
 import { Injectable, inject } from '@angular/core';
+import { Action } from '@ngrx/store';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { map, mergeMap, catchError, delay } from 'rxjs/operators';
+import { map, mergeMap, catchError } from 'rxjs/operators';
 import * as ReviewsActions from './reviews.actions';
+import { ShopApiService } from '../../services/shop-api.service';
 
 @Injectable()
 export class ReviewsEffects {
   private actions$ = inject(Actions);
 
-  // Mock API call
+  private api = inject(ShopApiService);
+
+  // Load reviews from API
   loadReviews$ = createEffect(() => this.actions$.pipe(
     ofType(ReviewsActions.loadReviews),
-    mergeMap(({ productId }) => {
-      // Simulate API delay
-      return of([
-        { id: 1, productId, userName: 'Alice', rating: 5, comment: 'Great product!', date: new Date().toISOString() },
-        { id: 2, productId, userName: 'Bob', rating: 4, comment: 'Good value.', date: new Date().toISOString() }
-      ]).pipe(
-        delay(500),
-        map(reviews => ReviewsActions.loadReviewsSuccess({ reviews, productId })),
-        catchError(error => of(ReviewsActions.loadReviewsFailure({ error: error.message })))
-      );
-    })
+    mergeMap(({ productId }) => 
+      this.api.getReviews(productId).pipe(
+        map((response: any) => ReviewsActions.loadReviewsSuccess({ 
+          reviews: response.results || [], 
+          productId 
+        })),
+        catchError((error: any) => of(ReviewsActions.loadReviewsFailure({ 
+          error: error.error?.message || error.message || 'Failed to load reviews' 
+        })))
+      )
+    )
   ));
 
+  // Add review via API
   addReview$ = createEffect(() => this.actions$.pipe(
     ofType(ReviewsActions.addReview),
-    mergeMap(({ review }) => {
-      const newReview: ReviewsActions.Review = {
-        ...review,
-        id: Math.floor(Math.random() * 1000),
-        date: new Date().toISOString()
-      };
-      return of(newReview).pipe(
-        delay(500),
-        map(createdReview => ReviewsActions.addReviewSuccess({ review: createdReview })),
-        catchError(error => of(ReviewsActions.addReviewFailure({ error: error.message })))
-      );
-    })
+    mergeMap(({ review }) => 
+      this.api.addReview(review.productId, review).pipe(
+        map((createdReview: any) => ReviewsActions.addReviewSuccess({ 
+          review: createdReview 
+        })),
+        catchError((error: any) => of(ReviewsActions.addReviewFailure({ 
+          error: error.error?.message || error.message || 'Failed to add review' 
+        })))
+      )
+    )
   ));
 }

@@ -1,7 +1,10 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -49,10 +52,13 @@ import { avgRating } from '../../../mocks/utils';
   templateUrl: './products-page.html',
   styleUrls: ['./products-page.css'],
 })
-export class ProductsPageComponent implements OnInit {
+export class ProductsPageComponent implements OnInit, OnDestroy {
   @ViewChild('sidenav') sidenav!: MatSidenav;
   private fb = inject(FormBuilder);
   private store = inject(Store);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private destroy$ = new Subject<void>();
 
   filterForm: FormGroup = this.fb.group({
     page: [1],
@@ -65,6 +71,9 @@ export class ProductsPageComponent implements OnInit {
     maxPrice: [100],
   });
 
+  // Page size options for paginator
+  pageSizeOptions: number[] = [12, 24, 48, 96];
+
   products$ = this.store.select(selectProductsList);
   count$ = this.store.select(selectProductsCount);
   loading$ = this.store.select(selectProductsLoading);
@@ -73,6 +82,58 @@ export class ProductsPageComponent implements OnInit {
   categories$ = this.store.select(selectUniqueCategories);
 
   ngOnInit() {
+    // 1. Restore filters from URL query params on init
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const formValues: any = {};
+      if (params['page']) formValues.page = +params['page'];
+      if (params['pageSize']) formValues.pageSize = +params['pageSize'];
+      if (params['minRating']) formValues.minRating = +params['minRating'];
+      if (params['ordering']) formValues.ordering = params['ordering'];
+      if (params['search']) formValues.search = params['search'];
+      if (params['category']) formValues.category = params['category'];
+      if (params['minPrice']) formValues.minPrice = +params['minPrice'];
+      if (params['maxPrice']) formValues.maxPrice = +params['maxPrice'];
+      
+      if (Object.keys(formValues).length > 0) {
+        this.filterForm.patchValue(formValues, { emitEvent: false });
+      }
+    });
+
+    // 2. Debounce filter changes and sync with URL
+    this.filterForm.valueChanges.pipe(
+      debounceTime(400),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      takeUntil(this.destroy$)
+    ).subscribe(values => {
+      this.syncUrlAndLoad(values);
+    });
+
+    // 3. Initial load
+    this.loadProducts();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private syncUrlAndLoad(values: any) {
+    // Update URL without reloading the page
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        page: values.page,
+        pageSize: values.pageSize,
+        minRating: values.minRating,
+        ordering: values.ordering,
+        search: values.search || null,
+        category: values.category !== 'all' ? values.category : null,
+        minPrice: values.minPrice,
+        maxPrice: values.maxPrice
+      },
+      queryParamsHandling: 'merge',
+      replaceUrl: false
+    });
     this.loadProducts();
   }
 

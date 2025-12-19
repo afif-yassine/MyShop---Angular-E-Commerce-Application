@@ -166,6 +166,54 @@ export class ShopApiService {
     });
   }
 
+  loginWithGoogle(googleUserData: { id: string; email: string; name: string; picture: string }): Observable<LoginResponse> {
+    return new Observable(observer => {
+      const users = this.getStoredUsers();
+      let user = users.find(u => u.email === googleUserData.email);
+
+      if (!user) {
+        // Create new user from Google account
+        user = {
+          id: users.length + 1,
+          name: googleUserData.name,
+          email: googleUserData.email,
+          password: '', // No password for Google users
+          isAdmin: false,
+          isGoogleUser: true,
+          googleId: googleUserData.id,
+          picture: googleUserData.picture
+        };
+        users.push(user);
+        localStorage.setItem(this.usersKey, JSON.stringify(users));
+      } else {
+        // Update existing user with latest Google info
+        user.name = googleUserData.name;
+        user.picture = googleUserData.picture;
+        user.googleId = googleUserData.id;
+        user.isGoogleUser = true;
+        localStorage.setItem(this.usersKey, JSON.stringify(users));
+      }
+
+      const tokenPayload = {
+        sub: user.id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        picture: user.picture,
+        isGoogleUser: true,
+        googleId: googleUserData.id
+      };
+
+      const access = btoa(JSON.stringify(tokenPayload));
+
+      observer.next({
+        access: access,
+        refresh: 'google-refresh-token-' + Math.random().toString(36).substr(2)
+      });
+      observer.complete();
+    });
+  }
+
   refresh(refreshToken: string): Observable<RefreshResponse> {
     return new Observable(observer => {
       setTimeout(() => {
@@ -237,6 +285,18 @@ export class ShopApiService {
         observer.complete();
       }, 800);
     });
+  }
+  
+  addProduct(product: Product): Observable<Product> {
+    return this.http.post<Product>('/api/products/', product);
+  }
+
+  getReviews(productId: number): Observable<any> {
+    return this.http.get<any>(`/api/products/${productId}/reviews/`);
+  }
+
+  addReview(productId: number, review: any): Observable<any> {
+    return this.http.post<any>(`/api/products/${productId}/reviews/`, review);
   }
 
   getRating(productId: number): Observable<ProductRatingResponse> {
