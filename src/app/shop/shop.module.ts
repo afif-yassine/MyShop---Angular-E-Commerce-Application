@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { authGuard } from '../guards/auth.guard';
+import { cartNotEmptyGuard } from '../guards/cart-not-empty.guard';
+import { addressRequiredGuard } from '../guards/address-required.guard';
 
 // Components (Standalone)
 import { ProductsPageComponent } from '../pages/products-page/products-page';
@@ -22,9 +24,9 @@ const routes: Routes = [
   {
     path: 'checkout',
     children: [
-      { path: '', component: Step1SummaryComponent, canActivate: [authGuard] },
-      { path: 'address', component: Step2AddressComponent, canActivate: [authGuard] },
-      { path: 'confirm', component: Step3ConfirmComponent, canActivate: [authGuard] },
+      { path: '', component: Step1SummaryComponent, canActivate: [authGuard, cartNotEmptyGuard] },
+      { path: 'address', component: Step2AddressComponent, canActivate: [authGuard, cartNotEmptyGuard] },
+      { path: 'confirm', component: Step3ConfirmComponent, canActivate: [authGuard, cartNotEmptyGuard, addressRequiredGuard] },
     ]
   }
 ];
